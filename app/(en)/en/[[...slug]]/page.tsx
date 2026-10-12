@@ -1,0 +1,29 @@
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+import { ContentPage } from "@/components/ContentPage";
+import { HomePage } from "@/components/HomePage";
+import { StructuredData } from "@/components/StructuredData";
+import { pageMetadata } from "@/lib/seo";
+import { pageKeyFromSlug, routeMap, type PageKey } from "@/lib/routes";
+
+type Props = { params: Promise<{ slug?: string[] }> };
+
+export function generateStaticParams() {
+  return (Object.keys(routeMap) as PageKey[]).map((key) => {
+    const slug = routeMap[key].en.replace(/^\/en\/?|\/$/g, "");
+    return { slug: slug ? slug.split("/") : [] };
+  });
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const key = pageKeyFromSlug("en", slug);
+  return key ? pageMetadata("en", key) : {};
+}
+
+export default async function EnglishPage({ params }: Props) {
+  const { slug } = await params;
+  const key = pageKeyFromSlug("en", slug);
+  if (!key) notFound();
+  return <><StructuredData locale="en" pageKey={key} />{key === "home" ? <HomePage locale="en" /> : <ContentPage locale="en" pageKey={key} />}</>;
+}

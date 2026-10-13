@@ -7,7 +7,7 @@ InvoiceTemplateMaker is a working bilingual invoice generator built with Next.js
 Current verification status:
 
 - TypeScript validation passes.
-- 13/13 automated tests pass.
+- 23/23 automated tests pass.
 - Production build passes.
 - 21 pages are statically generated.
 - Static SEO verification passes.
@@ -99,13 +99,22 @@ It provides:
 
 ### Root route
 
-- `/` — English/French language entry page
+- `/` — Automatic browser-language routing entry with an accessible English fallback
 
 Route mapping and language equivalents are centralized in `lib/routes.ts`.
 
 ## 5. Language switching
 
 The header contains an EN/FR language switcher.
+
+At the root `/` route, a lightweight script runs in the document head before the fallback content paints. Resolution priority is:
+
+1. A previously saved manual EN/FR preference
+2. The first supported value in `navigator.languages`
+3. `navigator.language`
+4. English as the fallback for unsupported languages
+
+Regional variants such as `fr-FR`, `fr-MA`, `fr-CA`, `fr-BE`, `en-US`, and `en-GB` resolve to their base language. The redirect uses `window.location.replace()` to avoid back-button loops and runs only at `/`; explicitly requested localized URLs are never overridden. If JavaScript is disabled, the root retains useful English content and crawlable links to both localized generators.
 
 When users switch languages:
 
@@ -514,7 +523,7 @@ French pages render with:
 <html lang="fr">
 ```
 
-The root language entry renders its own canonical and language alternatives.
+The root routing entry renders its own canonical and language alternatives.
 
 SEO configuration is in `lib/seo.ts`.
 
@@ -546,7 +555,7 @@ The static export includes:
 
 The sitemap contains:
 
-- Root language entry
+- Root automatic-language routing entry
 - English pages
 - French pages
 - Localized alternate links
@@ -587,7 +596,23 @@ The project does not require a Node.js production server.
 
 ## 22. Automated testing
 
-There are currently 13 tests.
+There are currently 23 tests.
+
+### Automatic-language routing tests
+
+They verify:
+
+- French browsers resolve to `/fr/`.
+- English browsers resolve to `/en/`.
+- Unsupported browser languages default to `/en/`.
+- Regional English and French language tags are recognized.
+- Direct English and French routes do not trigger root detection.
+- Saved French preferences override English browser settings.
+- Saved English preferences override French browser settings.
+- Detection runs only at the root, preventing loops.
+- Saving a language preference does not modify the invoice draft.
+
+Implementation: `tests/locale-resolution.test.ts`.
 
 ### Translation tests
 
@@ -780,7 +805,7 @@ The tool does not currently:
 
 ### Root-language preference
 
-The language switcher stores the preferred language, but the root `/` page does not automatically redirect based on that preference. It deliberately presents both language choices.
+The root `/` route automatically opens `/en/` or `/fr/`. A previously saved manual navbar choice takes priority, followed by `navigator.languages` and `navigator.language`; unsupported languages default to English. Detection is browser-only, uses `window.location.replace()`, and never redirects an explicitly requested localized route.
 
 ### Browser visual testing
 

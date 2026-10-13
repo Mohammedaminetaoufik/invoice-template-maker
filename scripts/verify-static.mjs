@@ -32,5 +32,30 @@ for (const path of ["out/index.html", "out/sitemap.xml", "out/robots.txt", "out/
   if (!existsSync(resolve(path))) { console.error(`Missing export artifact: ${path}`); failures++; }
 }
 
+const rootHtml = readFileSync(resolve("out/index.html"), "utf8");
+const rootChecks = [
+  ["itm-root-locale-redirect", "root locale redirect script"],
+  ["location.replace", "history-safe automatic redirect"],
+  ["/en/", "crawlable English fallback link"],
+  ["/fr/", "crawlable French fallback link"],
+  ["rel=\"canonical\" href=\"https://invoicetemplatemaker.com/\"", "root canonical"],
+  ["hrefLang=\"x-default\"", "root x-default hreflang"],
+];
+for (const [needle, label] of rootChecks) {
+  if (!rootHtml.includes(needle)) { console.error(`out/index.html: missing ${label}`); failures++; }
+}
+if (rootHtml.includes("Choose Your Language") || rootHtml.includes("entry-choices")) {
+  console.error("out/index.html: obsolete language-selection screen is still present");
+  failures++;
+}
+
+for (const localizedFile of [resolve("out/en/index.html"), resolve("out/fr/index.html")]) {
+  const html = readFileSync(localizedFile, "utf8");
+  if (html.includes("itm-root-locale-redirect")) {
+    console.error(`${localizedFile}: root redirect must not run on an explicit localized URL`);
+    failures++;
+  }
+}
+
 if (failures) process.exit(1);
-console.log(`Static export verified: ${pairs.length} primary localized routes, metadata, sitemap, robots, and embedded PDF font.`);
+console.log(`Static export verified: root locale routing, ${pairs.length} primary localized routes, metadata, sitemap, robots, and embedded PDF fonts.`);

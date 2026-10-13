@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { Languages } from "lucide-react";
 import type { Locale } from "@/lib/i18n";
+import { saveLocalePreference } from "@/lib/locale-resolution";
 import { pageKeyFromSlug, routeMap } from "@/lib/routes";
 
 export function LanguageSwitcher({ locale, label }: { locale: Locale; label: string }) {
@@ -11,7 +12,7 @@ export function LanguageSwitcher({ locale, label }: { locale: Locale; label: str
   const key = pageKeyFromSlug(locale, segments.slice(1)) ?? "home";
 
   function rememberLanguage(nextLocale: Locale) {
-    localStorage.setItem("itm-preferred-language", nextLocale);
+    saveLocalePreference(localStorage, nextLocale);
   }
 
   return (

@@ -1,7 +1,10 @@
 import type { Locale } from "./i18n";
 
-export type TemplateId = "modern" | "minimal" | "classic";
-export type CurrencyCode = "USD" | "EUR" | "MAD" | "CAD" | "GBP" | "CHF";
+export type { TemplateId } from "./templates";
+import type { TemplateId } from "./templates";
+export const currencyCodes = ["USD", "EUR", "MAD", "CAD", "GBP", "CHF", "JPY", "KWD"] as const;
+export type CurrencyCode = (typeof currencyCodes)[number];
+export type PaperSize = "a4" | "letter";
 
 export interface LineItem {
   id: string;
@@ -27,12 +30,33 @@ export interface InvoiceDraft {
   template: TemplateId;
   accent: string;
   notes: string;
+  paperSize?: PaperSize;
+  discountType?: "fixed" | "percent";
+  discountValue?: number;
+  shipping?: number;
+  deposit?: number;
+  amountPaid?: number;
+  logoId?: string;
+  wizardStep?: 1 | 2 | 3;
+  businessIdentifiers?: string;
+  iban?: string;
+  swift?: string;
+  purchaseOrder?: string;
+  paymentTerms?: string;
+  registrationRegion?: "generic" | "france" | "morocco";
+  siren?: string;
+  siret?: string;
+  vatNumber?: string;
+  ice?: string;
+  taxIdentifier?: string;
+  commercialRegister?: string;
+  registrationNumber?: string;
 }
 
 function isoDate(offset = 0) {
   const date = new Date();
   date.setDate(date.getDate() + offset);
-  return date.toISOString().slice(0, 10);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
 export function createDefaultDraft(locale: Locale): InvoiceDraft {
@@ -53,6 +77,20 @@ export function createDefaultDraft(locale: Locale): InvoiceDraft {
     template: "modern",
     accent: "#ec6d3f",
     notes: "",
+    paperSize: "a4",
+    discountType: "fixed",
+    discountValue: 0,
+    shipping: 0,
+    deposit: 0,
+    amountPaid: 0,
+    wizardStep: 1,
+    businessIdentifiers: "",
+    iban: "",
+    swift: "",
+    purchaseOrder: "",
+    paymentTerms: "",
+    registrationRegion: "generic",
+    siren: "", siret: "", vatNumber: "", ice: "", taxIdentifier: "", commercialRegister: "", registrationNumber: "",
   };
 }
 
@@ -62,26 +100,31 @@ export function cryptoSafeId() {
     : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-export function calculateTotals(draft: InvoiceDraft) {
-  const subtotal = draft.items.reduce((sum, item) => sum + item.quantity * item.rate, 0);
-  const tax = subtotal * (draft.taxRate / 100);
-  return { subtotal, tax, total: subtotal + tax };
-}
+export { calculateTotals, calculateLineAmount } from "./finance";
 
 export function formatMoney(value: number, currency: CurrencyCode, locale: Locale) {
   return new Intl.NumberFormat(locale === "fr" ? "fr-FR" : "en-US", {
     style: "currency",
     currency,
-    maximumFractionDigits: 2,
+  }).format(value);
+}
+
+// Unit prices may have more decimal places than a rounded payable amount.
+// Keep those entered digits visible so quantity × price remains explainable.
+export function formatUnitPrice(value: number, currency: CurrencyCode, locale: Locale) {
+  return new Intl.NumberFormat(locale === "fr" ? "fr-FR" : "en-US", {
+    style: "currency", currency, maximumFractionDigits: 20,
   }).format(value);
 }
 
 export function formatDate(value: string, locale: Locale) {
   if (!value) return "—";
+  const date = new Date(`${value}T00:00:00Z`);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || !Number.isFinite(date.getTime()) || date.toISOString().slice(0, 10) !== value) return "—";
   return new Intl.DateTimeFormat(locale === "fr" ? "fr-FR" : "en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
     timeZone: "UTC",
-  }).format(new Date(`${value}T00:00:00Z`));
+  }).format(date);
 }

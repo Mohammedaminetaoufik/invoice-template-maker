@@ -1,5 +1,33 @@
 # InvoiceTemplateMaker — Complete Implementation Report
 
+> Current release preparation: [V3_1_REPORT.md](V3_1_REPORT.md), dated 2026-10-14. It documents the compact mobile editor, completed-download flow, template comparison, validation and logo investigation, verification and remaining manual checks. The V3 baseline remains in [V3_REPORT.md](V3_REPORT.md), and V2 in [V2_REPORT.md](V2_REPORT.md). No changes have been committed, pushed, merged or deployed.
+
+## V3.1 UX polish
+
+Mobile Quick Edit now starts collapsed and opens a compact bottom sheet with field highlighting and focus return. Completed downloads keep the invoice visible with Edit Invoice, Download again and Change template; Ternyxa appears directly below the result, before instructions and FAQ. Redundant creation CTAs are hidden in that state. Large template previews offer previous/next comparison without copying fictional sample data. All new copy is localized into French. Required invoice number/date validation supplements the existing required names and item descriptions.
+
+The black logo was an opaque one-pixel test fixture, not a PDF rendering defect. A transparent, clearly marked DEMO logo has now been checked in all eight templates and their generated PDFs. See the current report for exact test results and release limitations.
+
+Screenshots: [compact mobile editor](output/v3-1/mobile-bottom-sheet.png), [template comparison](output/v3-1/template-comparison-mobile.png), [completed invoice](output/v3-1/result-en-chrome-desktop.png). The sections below describe the historical V3 baseline.
+
+## Current functionality — V3
+
+The tool is now a template-first bilingual visual invoice editor. Choose one of eight real designs without entering personal details, optionally see activity recommendations, then click fields directly on the document. Controlled contextual inputs edit names, contacts, addresses, invoice references/dates, descriptions, quantities, prices, notes and payment terms. Rows can be added or removed and amounts update live. Logos can be uploaded from the header placeholder, replaced, removed, retained locally and embedded in the PDF.
+
+Optional advanced settings retain currency, A4/US Letter, independent PDF language, exact financial calculations, zero-default tax, fixed/percentage discounts, shipping, received payments, remaining balance, overpayment credit, identifiers, purchase orders and bank details. Template and interface-language changes retain the draft. Local autosave, malformed-draft recovery and logo-inclusive JSON backups remain.
+
+Review shows every PDF page. Download initiation leaves the invoice visible, offers editing and another download, and does not claim the file was saved or opened. Mobile uses readable field editors and a touch-sized field navigator. Keyboard focus and Escape handling are supported. Placeholders are not saved as invoice data or printed.
+
+The supplied homepage copy, compact audience/trust statements and optional post-tool Ternyxa discovery section are implemented in English and French. The 20 localized SEO routes, canonicals, hreflang, metadata, sitemap, robots and structured data remain. Static Cloudflare deployment configuration is unchanged.
+
+See [V3_REPORT.md](V3_REPORT.md) for the full file inventory, architecture, test evidence, screenshots, known limitations, owner-review steps and exact continuation instructions. Its verification section is updated only with observed results; pending checks must not be assumed successful.
+
+Final local verification on 2026-10-13: 169 automated tests passed across 13 files; 12 browser tests passed across Chrome desktop, Edge desktop and a 390px Chrome touch viewport; TypeScript, production build, all 20 localized SEO routes and Cloudflare dry-run passed. A 50-row French invoice had matching 10-page review/PDF output in all three browser projects. Screenshot/PDF raster inspection found no overlap in the reviewed layouts. Physical iOS/Android, Safari/Firefox, actual printer behavior and Cloudflare dashboard settings remain owner-review items. Nothing was committed, pushed or deployed.
+
+Screenshots: [desktop editing](output/v3/editing-en-chrome-desktop.png), [mobile field editor](output/v3/contextual-field-mobile.png), [French editing](output/v3/editing-fr-chrome-desktop.png), [download result](output/v3/result-en-chrome-desktop.png).
+
+## Historical implementation report
+
 ## 1. Project status
 
 InvoiceTemplateMaker is a working bilingual invoice generator built with Next.js, React, TypeScript, and PDF-Lib.

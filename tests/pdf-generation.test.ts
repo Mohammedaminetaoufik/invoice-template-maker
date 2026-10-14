@@ -4,6 +4,7 @@ import { beforeAll, describe, expect, it, vi } from "vitest";
 import { createDefaultDraft, type TemplateId } from "@/lib/invoice";
 import { generateInvoicePdf } from "@/lib/pdf";
 import type { Locale } from "@/lib/i18n";
+import { templateIds } from "@/lib/templates";
 
 describe("bilingual template PDF generation", () => {
   beforeAll(async () => {
@@ -17,7 +18,7 @@ describe("bilingual template PDF generation", () => {
   });
 
   for (const locale of ["en", "fr"] satisfies Locale[]) {
-    for (const template of ["modern", "minimal", "classic"] satisfies TemplateId[]) {
+    for (const template of templateIds satisfies readonly TemplateId[]) {
       it(`generates the ${template} template in ${locale}`, async () => {
         const draft = createDefaultDraft(locale);
         Object.assign(draft, {

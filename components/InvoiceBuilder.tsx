@@ -1,131 +1,214 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { Check, ChevronDown, Download, Plus, RotateCcw, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Check, ChevronDown, Download, Plus, RotateCcw } from "lucide-react";
 import { getDictionary, type Locale } from "@/lib/i18n";
-import { createDefaultDraft, cryptoSafeId, type CurrencyCode, type InvoiceDraft, type TemplateId } from "@/lib/invoice";
-import { downloadPdf, generateInvoicePdf } from "@/lib/pdf";
+import { calculateTotals, createDefaultDraft, cryptoSafeId, currencyCodes, formatDate, formatMoney, type CurrencyCode, type InvoiceDraft, type TemplateId } from "@/lib/invoice";
+import { applyRequestedTemplate, DRAFT_STORAGE_KEY, parseStoredDraft, serializeDraft } from "@/lib/draft-storage";
 import { InvoicePreview } from "./InvoicePreview";
+import { LogoUpload } from "./LogoUpload";
+import { TemplatePicker } from "./TemplatePicker";
+import { getEditorCopy } from "@/lib/editor-copy";
+import { isTemplate } from "@/lib/templates";
+import { QuickEditNavigator } from "./QuickEditNavigator";
 
-const STORAGE_KEY = "itm-invoice-draft-v1";
+type Status = "idle" | "working" | "done" | "error" | "validation" | "calculation" | "unsupported" | "saved" | "importError";
 
-export function InvoiceBuilder({ locale, initialTemplate }: { locale: Locale; initialTemplate?: TemplateId }) {
+export function InvoiceBuilder({ locale, initialTemplate, onResultChange }: { locale: Locale; initialTemplate?: TemplateId; onResultChange?: (completed: boolean) => void }) {
   const t = getDictionary(locale);
   const [draft, setDraft] = useState<InvoiceDraft>(() => ({ ...createDefaultDraft(locale), template: initialTemplate ?? "modern" }));
   const [ready, setReady] = useState(false);
-  const [status, setStatus] = useState<"idle" | "working" | "done" | "error" | "validation">("idle");
+  const [storageError, setStorageError] = useState(false);
+  const [logoUrl, setLogoUrl] = useState<string>();
+  const [logoBusy, setLogoBusy] = useState(false);
+  const [status, setStatus] = useState<Status>("idle");
+  const heading = useRef<HTMLHeadingElement>(null);
+  const copy = getEditorCopy(locale);
+  const [showTemplates, setShowTemplates] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [guidance, setGuidance] = useState(true);
+  const [activeField, setActiveField] = useState<{ field: string; itemId?: string }>();
+  const [downloadInitiated, setDownloadInitiated] = useState(false);
+  const step = draft.wizardStep ?? 1;
+  useEffect(() => { onResultChange?.(step === 3 && downloadInitiated); }, [step, downloadInitiated, onResultChange]);
+  let total: number | undefined;
+  try { total = calculateTotals(draft).balance; } catch { /* Display the localized calculation error below. */ }
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) setDraft(JSON.parse(saved));
-      else {
-        const requestedTemplate = new URLSearchParams(window.location.search).get("template");
-        if (requestedTemplate === "modern" || requestedTemplate === "minimal" || requestedTemplate === "classic") {
-          setDraft((current) => ({ ...current, template: requestedTemplate }));
-        }
+      const saved = localStorage.getItem(DRAFT_STORAGE_KEY);
+      let restored = { ...createDefaultDraft(locale), template: initialTemplate ?? "modern" };
+      if (saved) {
+        try { restored = parseStoredDraft(saved, locale); }
+        catch { localStorage.setItem("itm-invoice-draft-recovery", saved); }
       }
-    } catch { /* A malformed local draft falls back safely. */ }
+      const requested = new URLSearchParams(window.location.search).get("template");
+      const next = applyRequestedTemplate(restored, requested);
+      setDraft(isTemplate(requested) || (!saved && initialTemplate) ? { ...next, wizardStep: 2 } : next);
+    } catch { setStorageError(true); }
     setReady(true);
-  }, []);
+  }, [locale, initialTemplate]);
 
   useEffect(() => {
-    if (ready) localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
+    if (!ready) return;
+    try { localStorage.setItem(DRAFT_STORAGE_KEY, serializeDraft(draft)); setStorageError(false); }
+    catch { setStorageError(true); }
   }, [draft, ready]);
 
-  const update = <K extends keyof InvoiceDraft>(key: K, value: InvoiceDraft[K]) => setDraft((current) => ({ ...current, [key]: value }));
+  const update = <K extends keyof InvoiceDraft>(key: K, value: InvoiceDraft[K]) => {
+    // Keep the document editable when a numeric input exceeds the financial
+    // engine's limits; reject the invalid change instead of losing its layout.
+    try { calculateTotals({ ...draft, [key]: value }); }
+    catch { setStatus("calculation"); return; }
+    setDraft((current) => ({ ...current, [key]: value }));
+    setStatus("idle");
+  };
   const updateItem = (id: string, key: "description" | "quantity" | "rate", value: string | number) => update("items", draft.items.map((item) => item.id === id ? { ...item, [key]: value } : item));
-  const addItem = () => update("items", [...draft.items, { id: cryptoSafeId(), description: "", quantity: 1, rate: 0 }]);
-  const removeItem = (id: string) => draft.items.length > 1 && update("items", draft.items.filter((item) => item.id !== id));
 
-  async function handleDownload() {
-    if (!draft.businessName.trim() || !draft.clientName.trim() || !draft.items.some((item) => item.description.trim())) {
-      setStatus("validation"); return;
-    }
+  function validate() {
+    const row = draft.items.find((item) => !item.description.trim());
+    const missing = !draft.businessName.trim() ? { field: "businessName" } : !draft.clientName.trim() ? { field: "clientName" } : !draft.invoiceNumber.trim() ? { field: "invoiceNumber" } : formatDate(draft.issueDate, draft.documentLocale) === "—" ? { field: "issueDate" } : draft.dueDate && formatDate(draft.dueDate, draft.documentLocale) === "—" ? { field: "dueDate" } : row ? { field: "description", itemId: row.id } : undefined;
+    if (missing) { update("wizardStep", 2); setActiveField(missing); setStatus("validation"); return false; }
+    if (total === undefined) { setShowSettings(true); setStatus("calculation"); return false; }
+    return true;
+  }
+  function goToStep(next: 1 | 2 | 3) {
+    if (logoBusy || (next === 3 && !validate())) return;
+    update("wizardStep", next); setActiveField(undefined);
+    setTimeout(() => { heading.current?.focus(); heading.current?.scrollIntoView({ block: "start" }); }, 0);
+  }
+  function editField(field: string, value: string, itemId?: string) {
+    if (itemId) updateItem(itemId, field as "description" | "quantity" | "rate", field === "description" ? value : Number(value));
+    else update(field as keyof InvoiceDraft, value);
+  }
+  function chooseTemplate(template: TemplateId) {
+    if (logoBusy || status === "working") return;
+    update("template", template);
+    if (step === 1) update("wizardStep", 2);
+    setShowTemplates(false);
+    setTimeout(() => { heading.current?.focus(); heading.current?.scrollIntoView({ block: "start" }); }, 0);
+  }
+
+  async function handleDownload(print = false) {
+    if (logoBusy) return;
+    if (!validate()) return;
+    // Open synchronously with the user's gesture to avoid a blocked popup.
+    const printWindow = print ? window.open("", "_blank") : null;
+    if (print && !printWindow) { setStatus("error"); return; }
     setStatus("working");
     try {
-      const bytes = await generateInvoicePdf(draft);
-      downloadPdf(bytes, `${draft.invoiceNumber || "invoice"}.pdf`);
-      setStatus("done");
-      setTimeout(() => setStatus("idle"), 3500);
+      const { downloadPdf, generateInvoicePdf } = await import("@/lib/pdf");
+      const logo = draft.logoId ? await (await import("@/lib/logo")).loadLogo(draft.logoId) : undefined;
+      const bytes = await generateInvoicePdf(draft, logo);
+      if (printWindow) {
+        const url = URL.createObjectURL(new Blob([new Uint8Array(bytes)], { type: "application/pdf" }));
+        printWindow.location.replace(url);
+        printWindow.onload = () => { try { printWindow.print(); } catch { /* The PDF viewer's print control remains available. */ } };
+        setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      } else downloadPdf(bytes, `${draft.invoiceNumber || "invoice"}.pdf`);
+      update("wizardStep", 3); setStatus(print ? "idle" : "done");
+      if (!print) setDownloadInitiated(true);
+      setActiveField(undefined); setShowSettings(false); setShowTemplates(false);
     } catch (error) {
-      console.error(error); setStatus("error");
+      printWindow?.close();
+      setStatus(error instanceof Error && error.name === "UnsupportedInvoiceCharacterError" ? "unsupported" : "error");
     }
+  }
+
+  function saveDraft() {
+    try { localStorage.setItem(DRAFT_STORAGE_KEY, serializeDraft(draft)); setStorageError(false); setStatus("saved"); }
+    catch { setStorageError(true); }
+  }
+
+  async function backup() {
+    try {
+      const { createInvoiceBackup, downloadBackup } = await import("@/lib/backup");
+      downloadBackup(await createInvoiceBackup(draft));
+    } catch { setStatus("importError"); }
+  }
+
+  async function restore(file?: File) {
+    if (!file) return;
+    try {
+      if (file.size > 4 * 1024 * 1024) throw new Error("Backup too large");
+      const { readInvoiceBackup } = await import("@/lib/backup");
+      const recovered = await readInvoiceBackup(await file.text(), locale);
+      if (!window.confirm(t.builder.importConfirm)) return;
+      if (recovered.logo) await (await import("@/lib/logo")).saveLogo(recovered.logo);
+      setDraft(recovered.draft); setStatus("saved"); setDownloadInitiated(false);
+    } catch { setStatus("importError"); }
   }
 
   function resetDraft() {
+    if (logoBusy) return;
     if (window.confirm(t.builder.resetConfirm)) {
-      const next = createDefaultDraft(locale);
-      setDraft(next); localStorage.removeItem(STORAGE_KEY); setStatus("idle");
+      if (draft.logoId) import("@/lib/logo").then(({ deleteLogo }) => deleteLogo(draft.logoId!)).catch(() => {});
+      setDraft(createDefaultDraft(locale)); setStatus("idle"); setDownloadInitiated(false);
     }
   }
 
-  const templates = useMemo(() => ["modern", "minimal", "classic"] as TemplateId[], []);
-  return (
-    <section className="builder-section" id="generator">
-      <div className="shell builder-heading">
-        <div><span className="eyebrow">{t.builder.eyebrow}</span><h2>{t.builder.title}</h2></div>
-        <span className="saved-indicator"><Check size={14} /> {t.builder.saved}</span>
-      </div>
-      <div className="builder-shell shell">
-        <div className="invoice-form">
-          <div className="form-title-row"><h3>{t.builder.details}</h3><button type="button" className="text-button" onClick={resetDraft}><RotateCcw size={14} />{t.builder.reset}</button></div>
-          <fieldset><legend><span>{t.builder.from}</span><small>{t.builder.fromHelp}</small></legend>
-            <div className="form-grid">
-              <label className="wide"><span>{t.builder.businessName}</span><input value={draft.businessName} onChange={(e) => update("businessName", e.target.value)} placeholder="Northstar Studio" /></label>
-              <label><span>{t.builder.businessEmail}</span><input type="email" value={draft.businessEmail} onChange={(e) => update("businessEmail", e.target.value)} placeholder="hello@example.com" /></label>
-              <label><span>{t.builder.businessAddress}</span><input value={draft.businessAddress} onChange={(e) => update("businessAddress", e.target.value)} placeholder={locale === "fr" ? "Ville, pays" : "City, country"} /></label>
-            </div>
-          </fieldset>
-          <fieldset><legend><span>{t.builder.to}</span><small>{t.builder.toHelp}</small></legend>
-            <div className="form-grid">
-              <label className="wide"><span>{t.builder.clientName}</span><input value={draft.clientName} onChange={(e) => update("clientName", e.target.value)} placeholder="Acme & Co." /></label>
-              <label><span>{t.builder.clientEmail}</span><input type="email" value={draft.clientEmail} onChange={(e) => update("clientEmail", e.target.value)} placeholder="client@example.com" /></label>
-              <label><span>{t.builder.clientAddress}</span><input value={draft.clientAddress} onChange={(e) => update("clientAddress", e.target.value)} placeholder={locale === "fr" ? "Ville, pays" : "City, country"} /></label>
-            </div>
-          </fieldset>
-          <fieldset><legend><span>{t.builder.details}</span></legend>
-            <div className="form-grid three">
-              <label><span>{t.builder.number}</span><input value={draft.invoiceNumber} onChange={(e) => update("invoiceNumber", e.target.value)} /></label>
-              <label><span>{t.builder.issueDate}</span><input type="date" value={draft.issueDate} onChange={(e) => update("issueDate", e.target.value)} /></label>
-              <label><span>{t.builder.dueDate}</span><input type="date" value={draft.dueDate} onChange={(e) => update("dueDate", e.target.value)} /></label>
-            </div>
-          </fieldset>
-          <fieldset><legend className="legend-row"><span>{t.builder.items}</span><button type="button" className="text-button" onClick={addItem}><Plus size={15} />{t.builder.addItem}</button></legend>
-            <div className="line-items">
-              {draft.items.map((item, index) => (
-                <div className="line-item" key={item.id}>
-                  <label className="item-description"><span>{t.builder.description}</span><input value={item.description} onChange={(e) => updateItem(item.id, "description", e.target.value)} placeholder={index === 0 ? t.builder.demoService : ""} /></label>
-                  <label><span>{t.builder.quantity}</span><input type="number" min="0" step="0.01" value={item.quantity} onChange={(e) => updateItem(item.id, "quantity", Number(e.target.value))} /></label>
-                  <label><span>{t.builder.rate}</span><input type="number" min="0" step="0.01" value={item.rate} onChange={(e) => updateItem(item.id, "rate", Number(e.target.value))} /></label>
-                  <button type="button" className="icon-button" onClick={() => removeItem(item.id)} disabled={draft.items.length === 1} aria-label={t.builder.remove}><Trash2 size={16} /></button>
-                </div>
-              ))}
-            </div>
-          </fieldset>
-          <details className="settings" open><summary><span>{t.builder.settings}</span><ChevronDown size={18} /></summary>
-            <div className="settings-content">
-              <div className="form-grid three">
-                <label><span>{t.builder.currency}</span><select value={draft.currency} onChange={(e) => update("currency", e.target.value as CurrencyCode)}>{["USD", "EUR", "MAD", "CAD", "GBP", "CHF"].map((currency) => <option key={currency}>{currency}</option>)}</select></label>
-                <label><span>{t.builder.tax} (%)</span><input type="number" min="0" max="100" step="0.1" value={draft.taxRate} onChange={(e) => update("taxRate", Number(e.target.value))} /></label>
-                <label><span>{t.builder.documentLanguage}</span><select value={draft.documentLocale} onChange={(e) => update("documentLocale", e.target.value as Locale)}><option value="en">English</option><option value="fr">Français</option></select><small>{t.builder.documentLanguageHelp}</small></label>
-              </div>
-              <div className="option-group"><span>{t.builder.template}</span><div className="template-options">{templates.map((template) => <button key={template} type="button" className={draft.template === template ? "selected" : ""} onClick={() => update("template", template)}><span className={`mini-template mini-${template}`} />{t.builder.templates[template]}</button>)}</div></div>
-              <div className="form-grid colour-notes">
-                <label><span>{t.builder.accent}</span><div className="color-field"><input type="color" value={draft.accent} onChange={(e) => update("accent", e.target.value)} /><code>{draft.accent.toUpperCase()}</code></div></label>
-                <label><span>{t.builder.notes}</span><textarea rows={3} value={draft.notes} onChange={(e) => update("notes", e.target.value)} placeholder={t.builder.notesPlaceholder} /></label>
-              </div>
-            </div>
-          </details>
-          {(status === "validation" || status === "error" || status === "done") && <p className={`form-status status-${status}`} role="status">{status === "validation" ? t.builder.validation : status === "error" ? t.builder.error : t.builder.downloaded}</p>}
+  function textField(key: "businessName" | "clientName" | "businessEmail" | "clientEmail" | "invoiceNumber" | "issueDate" | "dueDate" | "iban" | "swift" | "purchaseOrder" | "paymentTerms" | "siren" | "siret" | "vatNumber" | "ice" | "taxIdentifier" | "commercialRegister" | "registrationNumber", label: string, type = "text") {
+    return <label key={key}><span>{label}</span><input type={type} value={draft[key] ?? ""} onChange={(event) => update(key, event.target.value)} /></label>;
+  }
+  function numericField(key: "taxRate" | "discountValue" | "shipping" | "deposit" | "amountPaid", label: string, max?: number) {
+    return <label key={key}><span>{label}</span><input type="number" min="0" max={max} step="any" value={draft[key] ?? 0} onChange={(event) => update(key, Number(event.target.value))} /></label>;
+  }
+  const message = status === "validation" ? copy.validation : status === "calculation" ? t.builder.calculationError : status === "unsupported" ? t.builder.unsupportedCharacters : status === "importError" ? t.builder.importError : status === "error" ? t.builder.error : status === "saved" ? t.builder.draftSaved : status === "done" ? copy.initiated : "";
+
+  return <section className="builder-section visual-workspace" id="generator">
+    <div className="shell builder-heading"><div><span className="eyebrow">{t.builder.eyebrow}</span><h2 ref={heading} tabIndex={-1}>{step === 1 ? copy.chooseFirst : step === 3 ? copy.ready : t.builder.title}</h2></div><span className="saved-indicator" role="status"><Check size={14} />{storageError ? t.builder.storageError : ready ? t.builder.saved : ""}</span></div>
+    <div className="shell">
+      {(step === 1 || showTemplates) && <TemplatePicker locale={locale} selected={step === 1 ? undefined : draft.template} onChoose={chooseTemplate} onClose={step === 1 ? undefined : () => setShowTemplates(false)} />}
+      {step !== 1 && <>
+        <div className="editor-toolbar">
+          <button type="button" className="button button-ghost" disabled={logoBusy || status === "working"} onClick={() => setShowTemplates(!showTemplates)}>{copy.change}</button>
+          {step === 2 && <button type="button" className="button button-ghost" onClick={() => setShowSettings(!showSettings)} aria-expanded={showSettings}>{copy.advanced}</button>}
+          {step === 3 && <button type="button" className="button button-ghost" disabled={logoBusy || status === "working"} onClick={() => goToStep(2)}>{copy.edit}</button>}
+          {step === 2 && <button type="button" className="button button-ghost" disabled={logoBusy || status === "working"} onClick={() => goToStep(3)}>{copy.review}</button>}
+          <button type="button" className="button" disabled={status === "working" || logoBusy} onClick={() => handleDownload()}><Download size={18} />{status === "working" ? t.builder.downloading : step === 3 && downloadInitiated ? copy.again : copy.download}</button>
         </div>
-        <aside className="preview-column">
-          <div className="preview-bar"><span>{t.builder.preview}</span><span>{draft.documentLocale.toUpperCase()} · {draft.currency}</span></div>
-          <InvoicePreview draft={draft} />
-          <button type="button" className="button download-button" onClick={handleDownload} disabled={status === "working"}><Download size={18} />{status === "working" ? t.builder.downloading : t.builder.download}</button>
-          <p className="privacy-note"><Check size={13} />{locale === "fr" ? "Le PDF est généré localement dans votre navigateur." : "The PDF is generated locally in your browser."}</p>
+        {guidance && step === 2 && <div className="editor-guidance"><p>{copy.hint}</p><button type="button" className="text-button" onClick={() => setGuidance(false)} aria-label={copy.dismiss}>×</button></div>}
+        {message && <p className={`form-status status-${status}`} role={["validation", "error", "calculation", "unsupported"].includes(status) ? "alert" : "status"}>{message}</p>}
+        {total === undefined && status !== "calculation" && <p className="form-status status-error" role="alert">{t.builder.calculationError}</p>}
+      </>}
+      <div className={`visual-editor-layout ${showSettings && step === 2 ? "with-settings" : ""}`}>
+        {step !== 1 && <div className="document-canvas">
+          {step === 2 && <QuickEditNavigator locale={locale} draft={draft} disabled={status === "working"} onSelect={setActiveField} />}
+          <InvoicePreview draft={draft} logoUrl={logoUrl} editing={step === 2 && status !== "working" ? { locale, active: activeField,
+            onSelect: (region) => { setActiveField({ field: region.field, itemId: region.itemId }); if (region.field === "logo") setShowSettings(true); },
+            onChange: editField, onClose: () => setActiveField(undefined),
+            onRemove: (id) => { update("items", draft.items.filter((item) => item.id !== id)); setActiveField(undefined); },
+          } : undefined} />
+          {step === 2 && <div className="document-actions"><button type="button" className="button button-ghost" disabled={status === "working"} onClick={() => { const id = cryptoSafeId(); update("items", [...draft.items, { id, description: "", quantity: 1, rate: 0 }]); setActiveField({ field: "description", itemId: id }); }}><Plus size={16} />{t.builder.addItem}</button><p>{t.builder.currentTotal}: <strong>{total === undefined ? "—" : formatMoney(total, draft.currency, locale)}</strong></p></div>}
+        </div>}
+        <aside className="invoice-form advanced-panel" hidden={!showSettings || step !== 2} aria-label={copy.advanced}>
+          <fieldset disabled={status === "working"}>
+          <div className="form-title-row"><h3>{copy.advanced}</h3><button type="button" className="text-button" onClick={() => { setShowSettings(false); setActiveField(undefined); }}>{copy.close}</button></div>
+          <LogoUpload locale={locale} logoId={draft.logoId} onChange={(id) => update("logoId", id)} onPreview={setLogoUrl} onBusyChange={setLogoBusy} focusRequested={activeField?.field === "logo" && showSettings} />
+          <label><span>{t.builder.currency}</span><select value={draft.currency} onChange={(event) => update("currency", event.target.value as CurrencyCode)}>{currencyCodes.map((currency) => <option key={currency}>{currency}</option>)}</select></label>
+          <div className="form-grid">
+            <label><span>{t.builder.documentLanguage}</span><select aria-label={t.builder.documentLanguage} value={draft.documentLocale} onChange={(event) => update("documentLocale", event.target.value as Locale)}><option value="en">English</option><option value="fr">Français</option></select><small>{t.builder.documentLanguageHelp}</small></label>
+            <label><span>{t.builder.paperSize}</span><select value={draft.paperSize ?? "a4"} onChange={(event) => update("paperSize", event.target.value as "a4" | "letter")}><option value="a4">A4</option><option value="letter">{t.builder.letter}</option></select></label>
+          </div>
+          <details className="settings"><summary>{t.builder.advanced}<ChevronDown size={18} /></summary><div className="settings-content">
+            <div className="form-grid">{numericField("taxRate", `${t.builder.tax} (%)`, 100)}
+              <label><span>{t.builder.discountType}</span><select value={draft.discountType ?? "fixed"} onChange={(event) => update("discountType", event.target.value as "fixed" | "percent")}><option value="fixed">{t.builder.fixedDiscount}</option><option value="percent">{t.builder.percentDiscount}</option></select></label>
+              {numericField("discountValue", t.builder.discountValue + (draft.discountType === "percent" ? " (%)" : ""), draft.discountType === "percent" ? 100 : undefined)}
+              {numericField("shipping", t.builder.shipping)}{numericField("deposit", t.builder.deposit)}{numericField("amountPaid", t.builder.amountPaid)}
+              {textField("iban", t.builder.iban)}{textField("swift", t.builder.swift)}{textField("purchaseOrder", t.builder.purchaseOrder)}{textField("paymentTerms", t.builder.paymentTerms)}
+              <label><span>{t.builder.registrationRegion}</span><select value={draft.registrationRegion ?? "generic"} onChange={(event) => update("registrationRegion", event.target.value as "generic" | "france" | "morocco")}><option value="generic">{t.builder.genericRegion}</option><option value="france">{t.builder.france}</option><option value="morocco">{t.builder.morocco}</option></select></label>
+              {draft.registrationRegion === "france" ? <>{textField("siren", t.builder.siren)}{textField("siret", t.builder.siret)}{textField("vatNumber", t.builder.vatNumber)}</> : draft.registrationRegion === "morocco" ? <>{textField("ice", t.builder.ice)}{textField("taxIdentifier", t.builder.taxIdentifier)}{textField("commercialRegister", t.builder.commercialRegister)}</> : <>{textField("registrationNumber", t.builder.registrationNumber)}{textField("taxIdentifier", t.builder.taxIdentifier)}{textField("vatNumber", t.builder.vatNumber)}</>}
+              <label className="wide"><span>{t.builder.businessIdentifiers}</span><textarea rows={3} value={draft.businessIdentifiers ?? ""} onChange={(event) => update("businessIdentifiers", event.target.value)} placeholder="SIRET : … / ICE : …" /><small>{t.builder.identifiersHelp}</small></label>
+              <label><span>{t.builder.accent}</span><input type="color" value={draft.accent} onChange={(event) => update("accent", event.target.value)} /></label>
+              <label className="wide"><span>{t.builder.notes}</span><textarea rows={4} value={draft.notes} onChange={(event) => update("notes", event.target.value)} placeholder={t.builder.notesPlaceholder} /></label>
+            </div>
+          </div></details>
+
+          <div className="draft-actions"><button type="button" className="text-button" disabled={logoBusy || status === "working"} onClick={resetDraft}><RotateCcw size={14} />{t.builder.reset}</button><button type="button" className="text-button" onClick={saveDraft}>{t.builder.saveDraft}</button><button type="button" className="text-button" disabled={status === "working" || logoBusy} onClick={() => handleDownload(true)}>{t.builder.print}</button></div>
+          <details className="backup-controls"><summary>{t.builder.saveDraft}</summary><button type="button" className="text-button" onClick={backup}>{t.builder.exportDraft}</button><label><span>{t.builder.importDraft}</span><input type="file" accept="application/json,.json" disabled={logoBusy} onChange={(event) => { restore(event.target.files?.[0]); event.target.value = ""; }} /></label></details>
+          </fieldset>
         </aside>
       </div>
-    </section>
-  );
+    </div>
+  </section>;
 }

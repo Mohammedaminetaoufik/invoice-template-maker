@@ -23,7 +23,7 @@ export function Header({ locale }: { locale: Locale }) {
           <span className="brand-mark"><FileText size={19} strokeWidth={2.2} /></span>
           <span>{t.brand}</span>
         </a>
-        <nav className={open ? "main-nav is-open" : "main-nav"} aria-label="Primary">
+        <nav className={open ? "main-nav is-open" : "main-nav"} aria-label={locale === "fr" ? "Navigation principale" : "Main navigation"}>
           {links.map(([key, label]) => <a key={key} href={routeMap[key][locale]} onClick={() => setOpen(false)}>{label}</a>)}
         </nav>
         <div className="header-actions">

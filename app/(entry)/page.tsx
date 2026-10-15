@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { ArrowRight, FileText } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { BrandMark } from "@/components/BrandMark";
 import { SITE_URL } from "@/lib/seo";
 
 export const metadata: Metadata = {
@@ -26,7 +27,7 @@ export default function RootFallback() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
       <section className="root-fallback-card">
         <a className="brand" href="/en/" aria-label="InvoiceTemplateMaker English homepage">
-          <span className="brand-mark"><FileText size={20} /></span>
+          <BrandMark />
           <span>InvoiceTemplateMaker</span>
         </a>
         <span className="eyebrow">Free invoice generator</span>

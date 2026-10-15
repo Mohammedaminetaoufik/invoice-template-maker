@@ -12,9 +12,31 @@ export interface PageContent {
 
 export const pageContent: Record<Locale, Record<PageKey, PageContent>> = {
   en: {
+    about: {
+      title: "About InvoiceTemplateMaker | Free Invoice Tools",
+      description: "Learn about InvoiceTemplateMaker, a free English and French invoice tool in the Ternyxa ecosystem with browser-local PDF processing.",
+      eyebrow: "About the tool", h1: "Useful invoicing, without an account",
+      intro: "InvoiceTemplateMaker helps independent professionals and small businesses create readable invoices in English and French. It is part of the Ternyxa tools ecosystem.",
+      sections: [
+        { title: "Built around the essentials", body: "Enter your business and customer names, add products or services, and review your invoice before downloading. Optional settings cover logos, payment instructions, taxes and discounts." },
+        { title: "Your documents stay with you", body: "The browser performs calculations and creates PDFs. Drafts and logos are stored on your device; you can download a backup or clear them. No registration or invoice upload is required." },
+        { title: "A practical document tool", body: "Templates help present information consistently, but you remain responsible for the details and the requirements that apply to your activity. The tool does not provide accounting, tax or legal advice." },
+      ],
+    },
+    contact: {
+      title: "Contact and Feedback | InvoiceTemplateMaker",
+      description: "Report a problem or suggest an improvement for InvoiceTemplateMaker through the project repository. Find more tools at Ternyxa.",
+      eyebrow: "Contact and feedback", h1: "Help us make the tool more useful",
+      intro: "For bug reports and feature suggestions, use the public issue tracker linked below. Describe the steps, browser, language and template involved.",
+      sections: [
+        { title: "Report a reproducible issue", body: "Explain what you expected and what happened. Use made-up invoice details when reproducing a problem; public reports should not contain customer names, addresses, banking details or real invoices." },
+        { title: "Questions about your invoice", body: "We cannot verify tax treatment or local invoicing obligations. Ask your accountant or the relevant authority about rules that apply to your business." },
+        { title: "Discover more tools", body: "Visit Ternyxa to explore its tools ecosystem. Following this link is optional and does not transfer the invoice draft stored in your browser." },
+      ],
+    },
     home: {
-      title: "Free Invoice Generator | InvoiceTemplateMaker",
-      description: "Create a professional invoice online for free. Choose a template, customize your details, and download a bilingual-ready PDF—no sign-up required.",
+      title: "Free Invoice Generator & Templates | InvoiceTemplateMaker",
+      description: "Create professional invoices online for free. Choose an editable invoice template, customize it directly and download a PDF. No signup or watermark.",
       eyebrow: "Free invoice generator",
       h1: "Professional invoices, ready in minutes.",
       intro: "Create a polished invoice PDF in your browser without an account.",
@@ -27,7 +49,7 @@ export const pageContent: Record<Locale, Record<PageKey, PageContent>> = {
       h1: "A professional template for every kind of work",
       intro: "Pick a layout, add your details, and make it yours. Every template is editable, bilingual, and ready for a clean PDF export.",
       sections: [
-        { title: "One invoice maker, three useful styles", body: "Modern is expressive, Minimal is restrained, and Classic follows proven accounting standards." },
+        { title: "One invoice maker, eight useful styles", body: "Explore centred, compact, framed and expressive layouts for different business needs. Change a template without changing invoice details, logos, payments or document language." },
         { title: "Built for small business workflows", body: "Use the templates for consulting, design, trade services, or retail sales. Your data stays in the browser." },
       ],
     },
@@ -83,7 +105,7 @@ export const pageContent: Record<Locale, Record<PageKey, PageContent>> = {
       h1: "Your invoice draft stays in your browser",
       intro: "We designed this tool to minimize data collection. The invoice information you enter is stored locally on your device.",
       sections: [
-        { title: "Local draft storage", body: "The generator uses browser local storage to preserve your unfinished invoice and preferences. You can remove it at any time with the reset control or your browser settings." },
+        { title: "Local draft and logo storage", body: "The generator uses local storage for invoice drafts and preferences, and IndexedDB for logos. Reset clears the active draft and its logo; browser settings can clear all site storage, including recovery copies. Downloaded backups may contain payment details and logos, so keep them private." },
         { title: "PDF generation", body: "PDF files are generated in your browser. Invoice content does not need to be uploaded to our servers to create the file." },
         { title: "Website measurement", body: "If privacy-respecting analytics are introduced, this policy will be updated with the provider, purpose, and available controls." },
       ],
@@ -101,9 +123,31 @@ export const pageContent: Record<Locale, Record<PageKey, PageContent>> = {
     },
   },
   fr: {
+    about: {
+      title: "À Propos d’InvoiceTemplateMaker | Facturation Gratuite",
+      description: "Découvrez InvoiceTemplateMaker, un outil gratuit de facturation en français et anglais dans l’écosystème Ternyxa, avec traitement local des PDF.",
+      eyebrow: "À propos de l’outil", h1: "Une facturation utile, sans compte",
+      intro: "InvoiceTemplateMaker aide les indépendants et petites entreprises à créer des factures lisibles en français et en anglais. Il fait partie de l’écosystème d’outils Ternyxa.",
+      sections: [
+        { title: "Pensé pour l’essentiel", body: "Saisissez votre nom et celui du client, ajoutez vos produits ou services, puis vérifiez la facture avant le téléchargement. Des options permettent d’ajouter un logo, des consignes de paiement, des taxes et des remises." },
+        { title: "Vos documents restent chez vous", body: "Le navigateur effectue les calculs et crée les PDF. Brouillons et logos restent sur votre appareil. Vous pouvez télécharger une sauvegarde ou les effacer, sans inscription ni envoi de facture." },
+        { title: "Un outil pratique de création de documents", body: "Les modèles présentent les informations de façon cohérente. Vous restez responsable des données et des obligations liées à votre activité. L’outil ne fournit pas de conseil comptable, fiscal ou juridique." },
+      ],
+    },
+    contact: {
+      title: "Contact et Suggestions | InvoiceTemplateMaker",
+      description: "Signalez un problème ou proposez une amélioration via le dépôt du projet InvoiceTemplateMaker. Découvrez les autres outils de Ternyxa.",
+      eyebrow: "Contact et suggestions", h1: "Aidez-nous à rendre l’outil plus utile",
+      intro: "Pour signaler un bug ou proposer une fonction, utilisez le suivi public des problèmes ci-dessous. Précisez les étapes, le navigateur, la langue et le modèle concernés.",
+      sections: [
+        { title: "Décrire un problème reproductible", body: "Expliquez le résultat attendu et le résultat obtenu. Utilisez des données fictives : les signalements publics ne doivent pas contenir de vrais noms, adresses, coordonnées bancaires ou factures de clients." },
+        { title: "Questions sur votre facture", body: "Nous ne pouvons pas vérifier le traitement fiscal ou les obligations de facturation locales. Consultez votre comptable ou l’autorité compétente pour votre activité." },
+        { title: "Découvrir d’autres outils", body: "Visitez Ternyxa pour explorer ses outils. Ce lien est facultatif et ne transmet pas le brouillon conservé dans votre navigateur." },
+      ],
+    },
     home: {
-      title: "Générateur de Facture Gratuit | InvoiceTemplateMaker",
-      description: "Créez une facture professionnelle gratuite en ligne en quelques secondes. Choisissez un modèle, personnalisez vos détails et téléchargez un PDF bilingue sans inscription.",
+      title: "Générateur de facture gratuit | InvoiceTemplateMaker",
+      description: "Créez une facture professionnelle gratuitement en ligne. Choisissez un modèle, personnalisez-le directement et téléchargez un PDF sans inscription ni filigrane.",
       eyebrow: "Générateur de facture gratuit",
       h1: "Des factures professionnelles, prêtes en quelques minutes.",
       intro: "Créez une facture soignée dans votre navigateur, choisissez un modèle et téléchargez un PDF net sans compte.",
@@ -116,7 +160,7 @@ export const pageContent: Record<Locale, Record<PageKey, PageContent>> = {
       h1: "Un modèle professionnel pour chaque activité",
       intro: "Choisissez un design, complétez vos informations et exportez immédiatement un document PDF impeccable.",
       sections: [
-        { title: "Trois styles adaptés à vos besoins", body: "Le style Moderne est expressif, Minimaliste va à l'essentiel, et Classique respecte les présentations comptables traditionnelles." },
+        { title: "Huit styles adaptés à vos besoins", body: "Choisissez une présentation centrée, compacte, encadrée ou expressive. Changez de modèle sans modifier les coordonnées, le logo, les paiements ou la langue du document." },
         { title: "Conçu pour les flux réels", body: "Idéal pour les prestations de services, le conseil, les créatifs ou les ventes. Vos informations restent dans votre navigateur." },
       ],
     },
@@ -154,7 +198,7 @@ export const pageContent: Record<Locale, Record<PageKey, PageContent>> = {
     },
     guide: {
       title: "Comment Faire une Facture — Guide Étape par Étape",
-      description: "Découvrez les étapes essentielles pour établir une facture conforme : mentions obligatoires, numérotation, taux de TVA et conditions de règlement.",
+      description: "Découvrez les étapes pour faire une facture claire : coordonnées, numérotation, prestations, taxes applicables et conditions de règlement.",
       eyebrow: "Guide de facturation",
       h1: "Comment faire une facture claire et efficace",
       intro: "Une bonne facture documente précisément la prestation, clarifie les montants dus et indique clairement les modalités de paiement.",
@@ -172,7 +216,7 @@ export const pageContent: Record<Locale, Record<PageKey, PageContent>> = {
       h1: "Votre brouillon reste dans votre navigateur",
       intro: "Cet outil a été conçu selon le principe de minimisation des données. Les informations saisies sont conservées localement sur votre appareil.",
       sections: [
-        { title: "Stockage local des brouillons", body: "Le générateur utilise le stockage local de votre navigateur pour conserver votre saisie et vos préférences sans téléversement sur nos serveurs." },
+        { title: "Stockage local des brouillons et logos", body: "Le stockage local conserve vos brouillons et préférences ; IndexedDB conserve les logos. La remise à zéro efface le brouillon actif et son logo. Les réglages du navigateur permettent d’effacer toutes les données du site, y compris les copies de récupération. Gardez vos sauvegardes privées : elles peuvent contenir des coordonnées bancaires et des logos." },
         { title: "Génération PDF côté client", body: "La création du fichier PDF est effectuée directement sur votre machine. Vos données de facturation ne transitent par aucun serveur distant." },
         { title: "Mesure d'audience", body: "Si des outils d'analyse anonymes sont introduits, cette politique sera mise à jour avec l'ensemble des détails techniques et des choix disponibles." },
       ],

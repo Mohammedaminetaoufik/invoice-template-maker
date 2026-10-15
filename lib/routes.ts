@@ -1,6 +1,6 @@
 import type { Locale } from "./i18n";
 
-export type PageKey = "home" | "templates" | "simple" | "freelance" | "logo" | "guide" | "privacy" | "terms";
+export type PageKey = "home" | "templates" | "simple" | "freelance" | "logo" | "guide" | "privacy" | "terms" | "about" | "contact";
 
 export const routeMap: Record<PageKey, Record<Locale, string>> = {
   home: { en: "/en/", fr: "/fr/" },
@@ -11,6 +11,8 @@ export const routeMap: Record<PageKey, Record<Locale, string>> = {
   guide: { en: "/en/how-to-make-an-invoice/", fr: "/fr/comment-faire-une-facture/" },
   privacy: { en: "/en/privacy/", fr: "/fr/confidentialite/" },
   terms: { en: "/en/terms/", fr: "/fr/conditions/" },
+  about: { en: "/en/about/", fr: "/fr/a-propos/" },
+  contact: { en: "/en/contact/", fr: "/fr/contact/" },
 };
 
 export function pageKeyFromSlug(locale: Locale, slug?: string[]): PageKey | undefined {

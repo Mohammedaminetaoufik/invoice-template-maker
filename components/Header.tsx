@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { FileText, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { getDictionary, type Locale } from "@/lib/i18n";
 import { routeMap } from "@/lib/routes";
+import { BrandMark } from "./BrandMark";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
 export function Header({ locale }: { locale: Locale }) {
@@ -20,10 +21,10 @@ export function Header({ locale }: { locale: Locale }) {
     <header className="site-header">
       <div className="header-inner shell">
         <a className="brand" href={routeMap.home[locale]} aria-label={`${t.brand} — ${t.nav.generator}`}>
-          <span className="brand-mark"><FileText size={19} strokeWidth={2.2} /></span>
+          <BrandMark />
           <span>{t.brand}</span>
         </a>
-        <nav className={open ? "main-nav is-open" : "main-nav"} aria-label="Primary">
+        <nav className={open ? "main-nav is-open" : "main-nav"} aria-label={locale === "fr" ? "Navigation principale" : "Main navigation"}>
           {links.map(([key, label]) => <a key={key} href={routeMap[key][locale]} onClick={() => setOpen(false)}>{label}</a>)}
         </nav>
         <div className="header-actions">

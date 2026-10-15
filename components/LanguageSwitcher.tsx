@@ -12,7 +12,7 @@ export function LanguageSwitcher({ locale, label }: { locale: Locale; label: str
   const key = pageKeyFromSlug(locale, segments.slice(1)) ?? "home";
 
   function rememberLanguage(nextLocale: Locale) {
-    saveLocalePreference(localStorage, nextLocale);
+    try { saveLocalePreference(localStorage, nextLocale); } catch { /* Navigation still works when preference storage is blocked. */ }
   }
 
   return (

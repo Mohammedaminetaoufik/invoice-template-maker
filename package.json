@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && node scripts/build-pwa.mjs",
     "postinstall": "node scripts/copy-font.mjs",
     "test": "vitest run",
     "test:static": "node scripts/verify-static.mjs",
-    "check": "tsc --noEmit && vitest run && next build && node scripts/verify-static.mjs"
+    "test:browser": "playwright test",
+    "check": "next typegen && tsc --noEmit && vitest run && npm run build && node scripts/verify-static.mjs"
   },
   "dependencies": {
     "@fontsource/noto-sans": "^5.2.6",
@@ -21,9 +22,14 @@
     "react-dom": "^19.1.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.0",
+    "@testing-library/react": "16.3.0",
     "@types/node": "^22.10.2",
     "@types/react": "^19.0.3",
     "@types/react-dom": "^19.0.2",
+    "fake-indexeddb": "6.2.5",
+    "jsdom": "26.1.0",
+    "pdfjs-dist": "6.4.299",
     "typescript": "^5.7.2",
     "vite": "^8.0.0",
     "vitest": "^5.0.4"

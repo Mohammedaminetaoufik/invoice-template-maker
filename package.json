@@ -5,12 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && node scripts/build-pwa.mjs",
     "postinstall": "node scripts/copy-font.mjs",
     "test": "vitest run",
     "test:static": "node scripts/verify-static.mjs",
     "test:browser": "playwright test",
-    "check": "tsc --noEmit && vitest run && next build && node scripts/verify-static.mjs"
+    "check": "next typegen && tsc --noEmit && vitest run && npm run build && node scripts/verify-static.mjs"
   },
   "dependencies": {
     "@fontsource/noto-sans": "^5.2.6",

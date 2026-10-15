@@ -36,6 +36,10 @@ for (const locale of ["en", "fr"]) {
     ["application/ld+json", "structured data"],
     ["<h1", "static primary heading"],
     ["name=\"description\"", "meta description"],
+    ["src=\"/icon.svg\"", "shared brand mark"],
+    ["rel=\"icon\"", "browser icon"],
+    ["rel=\"manifest\"", "installable app manifest"],
+    ["rel=\"apple-touch-icon\"", "Apple home-screen icon"],
   ];
   for (const [needle, label] of checks) {
     if (!html.includes(needle)) { console.error(`${file}: missing ${label}`); failures++; }
@@ -55,7 +59,7 @@ for (const locale of ["en", "fr"]) {
 
 if (sitemapXml.includes("<lastmod>")) { console.error("Sitemap must not fabricate modification dates"); failures++; }
 
-for (const path of ["out/index.html", "out/sitemap.xml", "out/robots.txt", "out/fonts/NotoSans-Regular.woff", "out/fonts/NotoSans-Semibold.woff"]) {
+for (const path of ["out/index.html", "out/icon.svg", "out/apple-icon.png", "out/manifest.webmanifest", "out/sw.js", "out/_headers", "out/sitemap.xml", "out/robots.txt", "out/fonts/NotoSans-Regular.woff", "out/fonts/NotoSans-Semibold.woff"]) {
   if (!existsSync(resolve(path))) { console.error(`Missing export artifact: ${path}`); failures++; }
 }
 
@@ -67,6 +71,10 @@ const rootChecks = [
   ["/fr/", "crawlable French fallback link"],
   ["rel=\"canonical\" href=\"https://invoicetemplatemaker.com/\"", "root canonical"],
   ["hrefLang=\"x-default\"", "root x-default hreflang"],
+  ["src=\"/icon.svg\"", "root brand mark"],
+  ["rel=\"icon\"", "root browser icon"],
+  ["rel=\"manifest\"", "root installable app manifest"],
+  ["rel=\"apple-touch-icon\"", "root Apple home-screen icon"],
 ];
 for (const [needle, label] of rootChecks) {
   if (!rootHtml.includes(needle)) { console.error(`out/index.html: missing ${label}`); failures++; }
@@ -86,6 +94,31 @@ for (const localizedFile of [resolve("out/en/index.html"), resolve("out/fr/index
     if (!html.includes(needle)) { console.error(`${localizedFile}: missing crawlable V3 content: ${needle}`); failures++; }
   }
   if (!html.includes("Use this template") && !html.includes("Utiliser ce modèle")) { console.error(`${localizedFile}: template entry must be static HTML`); failures++; }
+}
+
+if (existsSync(resolve("out/manifest.webmanifest"))) {
+  const manifest = JSON.parse(readFileSync(resolve("out/manifest.webmanifest"), "utf8"));
+  if (manifest.id !== "/" || manifest.start_url !== "/" || manifest.scope !== "/" || manifest.display !== "standalone") {
+    console.error("PWA manifest has an invalid identity, start URL, scope or display mode"); failures++;
+  }
+  for (const [size, purpose] of [[192, undefined], [512, undefined], [512, "maskable"]]) {
+    const icon = manifest.icons?.find((candidate) => candidate.sizes === `${size}x${size}` && candidate.purpose === purpose);
+    if (!icon) { console.error(`PWA manifest missing ${size}px${purpose ? ` ${purpose}` : ""} icon`); failures++; continue; }
+    const iconFile = resolve("out", icon.src.slice(1));
+    if (!existsSync(iconFile)) { console.error(`Missing PWA icon: ${iconFile}`); failures++; continue; }
+    const png = readFileSync(iconFile);
+    if (png.subarray(0, 8).toString("hex") !== "89504e470d0a1a0a" || png.readUInt32BE(16) !== size || png.readUInt32BE(20) !== size) {
+      console.error(`PWA icon has wrong format or dimensions: ${iconFile}`); failures++;
+    }
+  }
+}
+
+if (existsSync(resolve("out/sw.js"))) {
+  const worker = readFileSync(resolve("out/sw.js"), "utf8");
+  for (const needle of ["itm-static-", '"/"', '"/en/"', '"/fr/"', '"/manifest.webmanifest"', '"/fonts/NotoSans-Regular.woff"', '"/_next/static/']) {
+    if (!worker.includes(needle)) { console.error(`Service worker missing offline resource: ${needle}`); failures++; }
+  }
+  if (worker.includes("__BUILD_ID__") || worker.includes("__PRECACHE_URLS__")) { console.error("Service worker still contains template placeholders"); failures++; }
 }
 
 if (failures) process.exit(1);

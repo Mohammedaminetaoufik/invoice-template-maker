@@ -4,7 +4,7 @@ Date: 2026-10-14. Branch: `feature/v2-pdf-reliability`.
 
 ## Scope and release status
 
-This is a focused polish of the existing V3 implementation. Nothing has been committed, pushed, merged or deployed. Owner approval is required for those actions. The working tree also contains the earlier V2/V3 work; do not discard those changes.
+This is a focused polish of the existing V3 implementation. The V2/V3/V3.1 baseline was committed and pushed to `feature/v2-pdf-reliability` as `6e3c06fc06f27a4407d5e56ffac8f46a30b86798`. The later release-audit fixes remain local and uncommitted. `main` remains at `3a08b5aefd876de1e1683f135537d064cb35ee53` as verified on 2026-10-14. Nothing was merged or deployed by this work. Owner approval is required to push the remaining changes or release the site. See [V3_1_RELEASE_AUDIT.md](V3_1_RELEASE_AUDIT.md) for current verification and release status.
 
 ## Changes
 
@@ -33,18 +33,20 @@ Current artifacts are under `output/v3-1/`, with browser-generated PDF fixtures 
 
 | Check | Observed result |
 | --- | --- |
-| `npm run check` | First run passed 169 tests, TypeScript, production build and static SEO checks. Final run including two additional required-field tests is pending. |
-| `npm run test:browser` | 13 passed, 2 intentionally skipped in 3.5 minutes. Chrome desktop 1440×1000, Edge desktop 1440×1000, Chrome mobile touch emulation 390×844. The two skips are the mobile-only sheet test on desktop projects. |
-| Cloudflare Wrangler 4.150.0 dry-run | Passed, 286 static assets, 0.36 KiB worker upload / 0.26 KiB gzip, no bindings. Dry-run exited without deployment. |
+| `npm run check` | The exact pushed commit passed from a clean checkout after `npm ci`: 171 tests, TypeScript, production build and static SEO checks. The final local audit update passed 186 tests after all contrast/header and test-seeding fixes. |
+| `npm run test:browser` | The final expanded local run passed 13 tests, with 2 intentional mobile-only skips, in 4.4 minutes. Chrome desktop 1440×1000, Edge desktop 1440×1000, Chrome mobile touch emulation 390×844. |
+| Bundled Chromium CI-mode browser run | `CI=true` passed 9 tests, with 1 intentional desktop skip, across desktop/mobile Chromium locally. Hosted GitHub Actions remains unrun until an approved push. |
+| Cloudflare Wrangler 4.150.0 dry-run | Passed after the brand-icon addition, 288 static assets, 0.36 KiB worker upload / 0.26 KiB gzip, no bindings. Dry-run exited without deployment. |
 | Shared state / logo persistence | All eight templates preserve draft data in each browser project. Uploaded logo remains visible after interface-language change and reload. |
 | Actual PDF downloads | Content extracted and checked in all three projects. All eight logo-bearing French PDFs downloaded in Chrome desktop contain an image rendering operator. |
 | Pagination | 50-row French invoices on US Letter produce matching 10-page preview/PDF output in each browser project; last row and payment terms retained. |
 | Mobile | Default-closed navigator, field focus/highlight, sheet height ≤300px, selected field above sheet, close/focus return and no horizontal overflow at 320px verified. |
 | Result experience | Browser assertions confirm Ternyxa immediately follows the builder, redundant CTAs are hidden and Download again remains visible. |
 | Visual review | Reviewed mobile bottom sheet and comparison modal, desktop contextual editor and completed result, French mobile editing, all eight logo PDFs and long-invoice ending. No overlap or logo distortion found in those reviewed views. |
+| Responsive sweep | EN and FR at 320, 375, 390, 768, 1024 and 1440px passed homepage, gallery, preview, edit, advanced, review and result flow without overflow or page errors. The narrow header was corrected and explicitly checked for clipping/overlap. |
 | Whitespace check | `git diff --check` passed; Git emitted Windows LF/CRLF conversion notices only. |
 
-One verification attempt overlapped screenshot rendering and hit existing 5-second interaction and 15-second PDF geometry timeouts. It reported 169 passes and 2 timeout failures, with no assertion failure. Timeout limits were not increased; the final check is being rerun without competing browser/render work.
+The large geometry test exceeded its 15-second limit even in isolation on one run. It has been split into separate 100-row tests for all eight templates and both paper sizes, keeping the same per-case limit. All 186 tests passed in the subsequent local run. A later browser run found a test draft-seeding race on Chrome desktop. The test now waits for hydration/autosave before seeding, and the full three-project browser rerun passed.
 
 The PDF review workflow used the existing PyMuPDF renderer because Poppler is absent on this host. It rasterized existing browser downloads without modifying their contents.
 

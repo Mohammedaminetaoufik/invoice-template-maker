@@ -3,7 +3,7 @@
 @import "@fontsource/noto-sans/600.css";
 @import "@fontsource/noto-sans/700.css";
 
-:root { --ink:#17201f; --muted:#69716f; --cream:#f7f4ee; --paper:#fff; --line:#deded8; --orange:#ec6d3f; --orange-dark:#d95a2f; --teal:#184c49; --soft-teal:#e4efec; --shadow:0 20px 60px rgba(25,40,37,.10); }
+:root { --ink:#17201f; --muted:#69716f; --cream:#f7f4ee; --paper:#fff; --line:#deded8; --orange:#b84722; --orange-dark:#a43b17; --teal:#184c49; --soft-teal:#e4efec; --shadow:0 20px 60px rgba(25,40,37,.10); }
 * { box-sizing:border-box; }
 html { scroll-behavior:smooth; }
 body { margin:0; color:var(--ink); background:var(--paper); font-family:"Noto Sans",Arial,sans-serif; font-size:15px; line-height:1.6; -webkit-font-smoothing:antialiased; }
@@ -22,7 +22,8 @@ button,a { -webkit-tap-highlight-color:transparent; }
 .site-header { position:sticky; top:0; z-index:50; height:70px; background:rgba(255,255,255,.92); border-bottom:1px solid rgba(218,218,211,.8); backdrop-filter:blur(14px); }
 .header-inner { height:100%; display:flex; align-items:center; justify-content:space-between; gap:26px; }
 .brand { display:inline-flex; align-items:center; gap:10px; font-weight:800; letter-spacing:-.035em; font-size:18px; white-space:nowrap; }
-.brand-mark { display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; color:#fff; background:var(--teal); border-radius:8px 8px 8px 2px; }
+.brand-mark { display:inline-flex; flex:none; width:32px; height:32px; }
+.brand-mark img { display:block; width:100%; height:100%; }
 .main-nav { display:flex; align-items:center; gap:26px; margin-left:auto; }
 .main-nav a { font-size:13px; color:#4c5653; font-weight:600; }
 .main-nav a:hover { color:var(--orange-dark); }
@@ -121,7 +122,7 @@ input:focus,select:focus,textarea:focus { border-color:var(--orange); background
 .prose-section { padding:90px 0; }.prose-grid { max-width:900px;display:grid;gap:0; }.prose-grid article { display:grid;grid-template-columns:70px 1fr;gap:25px;padding:35px 0;border-bottom:1px solid #e1e2dd; }.prose-grid article:first-child { padding-top:0; }.prose-index { color:#c0c5c1;font:italic 18px Georgia; }.prose-grid h2 { margin:0 0 10px;font:500 30px Georgia; }.prose-grid p { margin:0;color:var(--muted);font-size:15px;line-height:1.8; }.legal-hero { padding-bottom:75px; }.legal-prose .prose-grid { max-width:780px; }
 .guide-checklist { padding:85px 0;background:#edf4f2;text-align:center; }.guide-checklist h2 { font:500 36px Georgia; }.guide-checklist .shell>div { display:flex;flex-wrap:wrap;justify-content:center;gap:12px 24px;max-width:800px;margin:25px auto 32px; }.guide-checklist span { display:flex;align-items:center;gap:7px;color:#49605b;font-size:12px; }.guide-checklist svg { color:#2c8069; }
 
-.footer { padding:65px 0 25px;color:#d9e3e0;background:#102f2d; }.footer-grid { display:grid;grid-template-columns:2fr repeat(3,1fr);gap:50px; }.footer-brand { color:#fff; }.footer .brand-mark { background:var(--orange); }.footer p { color:#94aaa5;font-size:12px; }.footer-disclaimer { max-width:280px; }.footer h3 { margin:0 0 14px;color:#fff;font-size:11px;text-transform:uppercase;letter-spacing:.1em; }.footer-grid>div:not(:first-child) { display:flex;flex-direction:column;gap:8px; }.footer-grid a:not(.brand) { color:#9db0ac;font-size:12px; }.footer-grid a:hover { color:#fff; }.footer-bottom { display:flex;justify-content:space-between;margin-top:55px;padding-top:22px;border-top:1px solid rgba(255,255,255,.1);color:#6f8e87;font-size:10px; }
+.footer { padding:65px 0 25px;color:#d9e3e0;background:#102f2d; }.footer-grid { display:grid;grid-template-columns:2fr repeat(3,1fr);gap:50px; }.footer-brand { color:#fff; }.footer p { color:#94aaa5;font-size:12px; }.footer-disclaimer { max-width:280px; }.footer-install { max-width:310px;margin-top:18px; }.footer-install strong { color:#fff; }.footer h3 { margin:0 0 14px;color:#fff;font-size:11px;text-transform:uppercase;letter-spacing:.1em; }.footer-grid>div:not(:first-child) { display:flex;flex-direction:column;gap:8px; }.footer-grid a:not(.brand) { color:#9db0ac;font-size:12px; }.footer-grid a:hover { color:#fff; }.footer-bottom { display:flex;justify-content:space-between;margin-top:55px;padding-top:22px;border-top:1px solid rgba(255,255,255,.1);color:#6f8e87;font-size:10px; }
 
 .root-fallback { min-height:100vh;display:grid;place-items:center;padding:36px;background:var(--cream); }.root-fallback-card { width:min(700px,100%);padding:60px;background:#fff;border:1px solid #e1ded7;border-radius:15px;box-shadow:var(--shadow); }.root-fallback-card .brand { margin-bottom:60px; }.root-fallback-card h1 { max-width:570px;margin:14px 0 20px;font:500 clamp(44px,7vw,68px)/1.04 Georgia,serif;letter-spacing:-.04em; }.root-fallback-card>p { max-width:590px;margin:0 0 30px;color:var(--muted);font-size:16px; }.root-fallback-card .root-fallback-language { margin:24px 0 0;font-size:12px; }.root-fallback-language a { color:var(--orange-dark);font-weight:700;text-decoration:underline;text-underline-offset:3px; }
 
@@ -142,7 +143,8 @@ input:focus,select:focus,textarea:focus { border-color:var(--orange); background
   .footer-grid { grid-template-columns:1fr 1fr;gap:35px; }.footer-grid>div:first-child { grid-column:1/-1; }.footer-grid>div:last-child { grid-column:auto; }.footer-bottom { flex-direction:column;gap:8px; }
   .root-fallback { padding:18px; }.root-fallback-card { padding:38px 24px; }.root-fallback-card .brand { margin-bottom:45px; }
 }
-@media (max-width:410px) { .brand span:last-child { max-width:150px;overflow:hidden; }.hero h1 { font-size:42px; }.line-item { grid-template-columns:1fr 1fr 28px; }.item-description { grid-column:1/-1; }.preview-column { margin-inline:-4px;width:calc(100% + 8px); }.invoice-paper { padding:20px; }.invoice-top { gap:8px; }.invoice-meta { width:113px; }.invoice-table th:first-child { width:43%; } }
+@media (max-width:410px) { .header-inner { gap:8px; }.brand { gap:7px;font-size:13px; }.header-actions { gap:6px; }.hero h1 { font-size:42px; }.line-item { grid-template-columns:1fr 1fr 28px; }.item-description { grid-column:1/-1; }.preview-column { margin-inline:-4px;width:calc(100% + 8px); }.invoice-paper { padding:20px; }.invoice-top { gap:8px; }.invoice-meta { width:113px; }.invoice-table th:first-child { width:43%; } }
+@media (max-width:350px) { .brand { font-size:12px; } }
 @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } *,*::before,*::after { transition:none!important;animation:none!important; } }
 
 /* Invoice content grows naturally; long notes must not overlay totals or rows. */
@@ -176,7 +178,6 @@ input:focus,select:focus,textarea:focus { border-color:var(--orange); background
 .contact-links { display:flex;flex-wrap:wrap;gap:14px;padding-bottom:80px; }
 .generator-intro h1 { margin:8px 0;font:500 clamp(28px,4vw,42px)/1.15 Georgia,serif;letter-spacing:-.025em; }
 .generator-intro p { margin:8px 0;color:var(--muted);max-width:800px;font-size:14px; }
-.generator-intro a { color:var(--orange-dark);font-weight:700; }
 .generator-intro+.builder-section { padding-top:28px; }
 .wizard-progress { display:flex;gap:12px;list-style:none;padding:0;margin-bottom:24px; }
 .wizard-progress li { flex:1; }
@@ -283,3 +284,5 @@ main[data-invoice-complete=true]>.ternyxa-discovery { padding-top:0; }
 }
 @media(max-width:450px) { .visual-template-grid { gap:10px; }.visual-template-card { padding:8px; }.visual-template-card.selected { padding:7px; }.template-thumbnail { padding:4px; }.visual-template-card h3 { font-size:13px; }.visual-template-card p { font-size:11px; }.template-picker .form-title-row { flex-wrap:wrap; }.visual-template-card .button { font-size:12px; }.template-preview-dialog { padding:14px; } }
 @media(max-width:760px) { .wizard-progress { gap:6px; }.wizard-progress button { flex-direction:column;align-items:flex-start;padding:10px 8px;font-size:10px;gap:8px; }.generator-intro { padding-top:22px; }.generator-intro+.builder-section { padding-top:20px; }.wizard-navigation .button { flex:1; } }
+.footer-bottom { color:#a8beb9;font-size:12px; }
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible { outline:3px solid var(--teal);outline-offset:2px;box-shadow:0 0 0 5px #fff; }

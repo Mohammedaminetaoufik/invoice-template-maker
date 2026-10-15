@@ -1,0 +1,37 @@
+name: Release candidate checks
+
+on:
+  push:
+    branches:
+      - feature/v2-pdf-reliability
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  static-and-browser:
+    name: TypeScript, PDF, static export, browser, Cloudflare dry-run
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CI: "true"
+      WRANGLER_SEND_METRICS: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Validate types, tests, build and static SEO
+        run: npm run check
+      - name: Install Chromium and system libraries
+        run: npx playwright install --with-deps chromium
+      - name: Exercise invoice workflows in Chromium
+        run: npm run test:browser
+      - name: Validate Cloudflare package without publishing
+        run: npx --yes wrangler@4.150.0 deploy --dry-run --config wrangler.jsonc

@@ -65,6 +65,10 @@ test("template-first editor, validation, rows, live amounts and correction after
   await page.getByRole("button", { name: "Download Invoice PDF", exact: true }).click();
   await secondDownload;
   expect((await draft(page)).clientName).toBe("Corrected Example Client");
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Download Invoice PDF", exact: true })).toBeVisible();
+  await expect(page.getByText(/PDF download initiated/)).toHaveCount(0);
+  expect((await draft(page)).clientName).toBe("Corrected Example Client");
   expect(errors).toEqual([]);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
@@ -87,14 +91,14 @@ test("all eight templates preserve data; interface language, PDF language, logo 
   });
   await page.locator(".logo-control input[type=file]").setInputFiles({ name: "fictional-demo-logo.png", mimeType: "image/png", buffer: Buffer.from(logo, "base64") });
   await expect(page.locator(".logo-upload-preview img")).toBeVisible();
-  const before = await draft(page);
+  let before = await draft(page);
   await page.locator(".advanced-panel").getByRole("button", { name: "Close", exact: true }).click();
   for (const id of templateIds) {
     await page.getByRole("button", { name: "Change template", exact: true }).click();
     await page.getByRole("button", { name: `Use this template: ${getDictionary("en").builder.templates[id]}`, exact: true }).click();
     expect(await draft(page)).toEqual({ ...before, template: id });
     await expect(page.locator(".document-canvas image").first()).toBeVisible();
-    if (info.project.name === "chrome-desktop") {
+    if (["chrome-desktop", "chromium-desktop"].includes(info.project.name)) {
       const downloadEvent = page.waitForEvent("download");
       await page.getByRole("button", { name: "Download Invoice PDF", exact: true }).click();
       const download = await downloadEvent;
@@ -106,6 +110,33 @@ test("all eight templates preserve data; interface language, PDF language, logo 
       await task.destroy();
       await page.getByRole("button", { name: "Edit Invoice", exact: true }).click();
     }
+  }
+  for (const mime of ["image/jpeg", "image/webp"] as const) {
+    const encoded = await page.evaluate((format) => {
+      const canvas = document.createElement("canvas"); canvas.width = 160; canvas.height = 64;
+      const context = canvas.getContext("2d")!;
+      context.fillStyle = "white"; context.fillRect(0, 0, 160, 64);
+      context.fillStyle = "#2563eb"; context.font = "bold 32px sans-serif"; context.fillText("DEMO", 30, 43);
+      return canvas.toDataURL(format);
+    }, mime);
+    expect(encoded).toMatch(new RegExp(`^data:${mime};base64,`));
+    await page.getByRole("button", { name: "Advanced options", exact: true }).click();
+    const previousLogo = (await draft(page)).logoId;
+    await page.locator(".logo-control input[type=file]").setInputFiles({ name: mime === "image/jpeg" ? "demo.jpg" : "demo.webp", mimeType: mime, buffer: Buffer.from(encoded.split(",")[1], "base64") });
+    await expect.poll(async () => (await draft(page)).logoId).not.toBe(previousLogo);
+    await expect(page.locator(".document-canvas image").first()).toBeVisible();
+    await page.locator(".advanced-panel").getByRole("button", { name: "Close", exact: true }).click();
+    if (info.project.name === "chrome-desktop") {
+      const downloadEvent = page.waitForEvent("download");
+      await page.getByRole("button", { name: "Download Invoice PDF", exact: true }).click();
+      const download = await downloadEvent;
+      const task = getDocument({ data: new Uint8Array(await readFile((await download.path())!)), disableFontFace: true, useSystemFonts: false });
+      const pdf = await task.promise;
+      expect((await (await pdf.getPage(1)).getOperatorList()).fnArray).toContain(OPS.paintImageXObject);
+      await task.destroy();
+      await page.getByRole("button", { name: "Edit Invoice", exact: true }).click();
+    }
+    before = await draft(page);
   }
   await page.locator(".language-switcher").getByRole("link", { name: "FR", exact: true }).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Générateur de facture gratuit — Créez votre facture en ligne");
@@ -163,6 +194,7 @@ test("long French invoices have matching review/PDF page counts and retain the l
     notes: "Merci pour votre confiance. ".repeat(30), paymentTerms: "Paiement sous 14 jours",
     items: Array.from({ length: 50 }, (_, index) => ({ id: `row-${index}`, description: `Service-${index + 1} création et développement. ` + "Description détaillée de la prestation. ".repeat(6), quantity: 1.25, rate: 12.01 })) };
   await page.goto("/fr/");
+  await expect(page.locator(".saved-indicator")).toContainText("Brouillon enregistré sur cet appareil");
   await page.evaluate(({ key, value }) => localStorage.setItem(key, JSON.stringify({ version: 2, draft: value })), { key: storageKey, value: seeded });
   await page.reload();
   await page.evaluate(() => document.fonts.ready);

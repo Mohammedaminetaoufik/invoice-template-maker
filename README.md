@@ -23,6 +23,15 @@ Open `http://localhost:3000`. Stop the development server before a Windows clean
 - Optional registration identifiers, purchase orders and payment instructions
 - Validated/versioned local drafts and JSON backup/restore with logos
 - Static bilingual SEO routes, About/Contact/Privacy/Terms pages and Ternyxa links
+- Installable phone app with EN/FR launch routing, home-screen icons and offline invoice/PDF support after the first successful online load
+
+## Install on a phone
+
+The production site must be served over HTTPS. On Android, use the browser menu’s **Install app** or **Add to Home Screen** action. On iPhone, open the site in Safari and use **Share → Add to Home Screen**. The same instructions appear in English or French in the site footer. Browser installation is controlled by the device and browser; this site does not claim that a native package or App Store listing exists.
+
+The service worker caches only static application files, both generator homepages, icons and PDF fonts—not invoice drafts, uploaded logos or generated PDFs. Once its initial cache has completed, the EN/FR generator can reopen and export a PDF offline. Other informational pages can be revisited offline after they have been opened online. Offline storage can still be cleared by the browser. On iOS, check whether an existing Safari draft is available in the newly installed home-screen app; use the built-in draft export/import if it is not.
+
+`npm run dev` deliberately does not register the service worker. For local PWA testing, run `npm run build` and then `node scripts/serve-static.mjs`; the browser can use service workers on `127.0.0.1`.
 
 ## Verification
 
@@ -31,11 +40,11 @@ npm run check
 npm run test:browser
 ```
 
-This runs TypeScript, financial/PDF/storage/interaction/translation tests, the production export and static SEO/assets verification.
+This generates the framework-managed route types, then runs TypeScript, financial/PDF/storage/interaction/translation tests, the production export, service-worker generation and static SEO/PWA asset verification.
 
 Tests use PDF.js for actual PDF text extraction, fake IndexedDB for binary storage, and jsdom/Testing Library for React interactions. PDF.js tests need Node 22.13 or newer; the verified environment used Node 24.16.
 
-Browser QA runs against the static export with installed Chrome/Edge and a 390px Chrome touch viewport. Run it after the build and separately from the CPU-heavy unit/PDF suite. Screenshots are saved in `output/v3/`.
+Browser QA runs against the static export with installed Chrome/Edge and a 390px Chrome touch viewport locally. GitHub Actions uses bundled Chromium on desktop and mobile. Run browser QA after the build and separately from the CPU-heavy unit/PDF suite. Representative screenshots are under `output/v3-1/`; generated QA captures are ignored by Git.
 
 The visual document, preview and PDF share `lib/pdf-layout.ts`; financial calculations use `lib/finance.ts`. See [the V3 handoff](V3_REPORT.md), [calculation rules](docs/financial-calculations.md), [future advertising/privacy preparation](docs/advertising-and-privacy.md), and [the V2 baseline](V2_REPORT.md).
 
@@ -49,6 +58,6 @@ A non-publishing configuration check:
 npx --yes wrangler@4.150.0 deploy --dry-run --config wrangler.jsonc
 ```
 
-The existing configured deployment command is `npx wrangler deploy --config wrangler.jsonc`. It publishes and requires owner approval. An approved push to `main` should use the existing Cloudflare automatic deployment; do not introduce a second publishing workflow.
+`wrangler versions upload --config wrangler.jsonc` can upload a Worker version without routing production traffic. The actual Cloudflare dashboard build, branch and deploy-command settings must be inspected before pushing code; local source does not prove those remote settings. Never run `wrangler deploy`, promote a version or merge to `main` without owner approval. The GitHub Actions workflow only runs checks and a dry-run.
 
-Local file changes and successful builds are not production deployment. Complete the manual device and dashboard checks in `V3_REPORT.md` before release approval.
+Local file changes and successful builds are not production deployment. See [the V3.1 release audit](V3_1_RELEASE_AUDIT.md) for current results, manual checks and approval steps.

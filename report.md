@@ -1,6 +1,6 @@
 # InvoiceTemplateMaker — Complete Implementation Report
 
-> Current release preparation: [V3_1_REPORT.md](V3_1_REPORT.md), dated 2026-10-14. It documents the compact mobile editor, completed-download flow, template comparison, validation and logo investigation, verification and remaining manual checks. The V3 baseline remains in [V3_REPORT.md](V3_REPORT.md), and V2 in [V2_REPORT.md](V2_REPORT.md). No changes have been committed, pushed, merged or deployed.
+> Current release audit: [V3_1_RELEASE_AUDIT.md](V3_1_RELEASE_AUDIT.md), with V3.1 implementation details in [V3_1_REPORT.md](V3_1_REPORT.md). The V3 baseline remains in [V3_REPORT.md](V3_REPORT.md), and V2 in [V2_REPORT.md](V2_REPORT.md). The V3.1 baseline was pushed to the feature branch; audit fixes remain local. No merge or deployment was performed.
 
 ## V3.1 UX polish
 

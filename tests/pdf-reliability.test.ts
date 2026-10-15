@@ -148,28 +148,24 @@ describe("actual exported PDF reliability", () => {
 });
 
 describe("measured PDF geometry", () => {
-  it("keeps text inside the page and prevents distinct text cells from colliding", () => {
-    for (const template of templateIds) {
-      for (const paperSize of ["a4", "letter"] as const) {
-        const draft = makeDraft(100, "fr", template, paperSize);
-        draft.notes = "Échéance, réception et règlement. ".repeat(100);
-        const layout = createInvoiceLayout(draft, measure);
-        for (const page of layout.pages) {
-          const texts = page.operations.filter((operation): operation is TextOperation => operation.kind === "text");
-          for (const text of texts) {
-            expect(text.x).toBeGreaterThanOrEqual(43);
-            expect(text.x + text.width).toBeLessThanOrEqual(layout.width - 43);
-            expect(text.top).toBeGreaterThanOrEqual(44);
-            expect(text.top + text.size).toBeLessThanOrEqual(layout.height - 25);
-          }
-          for (let i = 0; i < texts.length; i += 1) {
-            for (let j = i + 1; j < texts.length; j += 1) {
-              const a = texts[i], b = texts[j];
-              const horizontal = Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x);
-              const vertical = Math.min(a.top + a.size, b.top + b.size) - Math.max(a.top, b.top);
-              if (horizontal > .5 && vertical > .5) throw new Error(`Overlapping text: ${a.text} / ${b.text}`);
-            }
-          }
+  it.each(templateIds.flatMap((template) => (["a4", "letter"] as const).map((paperSize) => [template, paperSize] as const)))("keeps %s %s text inside the page without collisions", (template, paperSize) => {
+    const draft = makeDraft(100, "fr", template, paperSize);
+    draft.notes = "Échéance, réception et règlement. ".repeat(100);
+    const layout = createInvoiceLayout(draft, measure);
+    for (const page of layout.pages) {
+      const texts = page.operations.filter((operation): operation is TextOperation => operation.kind === "text");
+      for (const text of texts) {
+        expect(text.x).toBeGreaterThanOrEqual(43);
+        expect(text.x + text.width).toBeLessThanOrEqual(layout.width - 43);
+        expect(text.top).toBeGreaterThanOrEqual(44);
+        expect(text.top + text.size).toBeLessThanOrEqual(layout.height - 25);
+      }
+      for (let i = 0; i < texts.length; i += 1) {
+        for (let j = i + 1; j < texts.length; j += 1) {
+          const a = texts[i], b = texts[j];
+          const horizontal = Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x);
+          const vertical = Math.min(a.top + a.size, b.top + b.size) - Math.max(a.top, b.top);
+          if (horizontal > .5 && vertical > .5) throw new Error(`Overlapping text: ${a.text} / ${b.text}`);
         }
       }
     }

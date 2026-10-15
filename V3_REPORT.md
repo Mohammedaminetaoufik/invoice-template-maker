@@ -1,5 +1,7 @@
 # InvoiceTemplateMaker — V3 visual editor and handoff
 
+Historical snapshot from 2026-10-13. The V3/V3.1 implementation was subsequently committed and pushed to the feature branch. Current release status and test results are in [V3_1_RELEASE_AUDIT.md](V3_1_RELEASE_AUDIT.md); the status below describes the project at the time of this V3 handoff.
+
 Date: 2026-10-13. Workspace: `C:\Users\ataou\OneDrive\Desktop\invoice-template-maker`.
 
 ## Status and release boundary

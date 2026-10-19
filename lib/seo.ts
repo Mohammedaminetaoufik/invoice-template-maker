@@ -6,6 +6,15 @@ import { routeMap } from "./routes";
 
 export const SITE_URL = "https://invoicetemplatemaker.com";
 
+const socialImage = (locale: Locale) => ({
+  url: `${SITE_URL}/og/invoice-maker-${locale}.jpg`,
+  width: 1200,
+  height: 630,
+  alt: locale === "fr"
+    ? "InvoiceTemplateMaker — Des factures professionnelles, en toute simplicité"
+    : "InvoiceTemplateMaker — Professional invoices made simple",
+});
+
 export function pageMetadata(locale: Locale, key: PageKey): Metadata {
   const content = pageContent[locale][key];
   const canonical = `${SITE_URL}${routeMap[key][locale]}`;
@@ -27,7 +36,15 @@ export function pageMetadata(locale: Locale, key: PageKey): Metadata {
       url: canonical,
       siteName: "InvoiceTemplateMaker",
       locale: locale === "fr" ? "fr_FR" : "en_US",
+      alternateLocale: locale === "fr" ? "en_US" : "fr_FR",
+      images: [socialImage(locale)],
       type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: content.title,
+      description: content.description,
+      images: [socialImage(locale)],
     },
   };
 }

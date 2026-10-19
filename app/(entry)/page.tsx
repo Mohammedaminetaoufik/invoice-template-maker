@@ -10,6 +10,30 @@ export const metadata: Metadata = {
     canonical: `${SITE_URL}/`,
     languages: { en: `${SITE_URL}/en/`, fr: `${SITE_URL}/fr/`, "x-default": `${SITE_URL}/` },
   },
+  openGraph: {
+    type: "website",
+    title: "Free Invoice Generator in English and French | InvoiceTemplateMaker",
+    description: "Create a free professional invoice online. InvoiceTemplateMaker is available in English and French with private, browser-based PDF generation.",
+    url: `${SITE_URL}/`,
+    siteName: "InvoiceTemplateMaker",
+    locale: "en_US",
+    alternateLocale: "fr_FR",
+    images: [{
+      url: `${SITE_URL}/og/invoice-maker-en.jpg`,
+      width: 1200,
+      height: 630,
+      alt: "InvoiceTemplateMaker — Professional invoices made simple",
+    }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Free Invoice Generator in English and French | InvoiceTemplateMaker",
+    description: "Create a free professional invoice online. InvoiceTemplateMaker is available in English and French with private, browser-based PDF generation.",
+    images: [{
+      url: `${SITE_URL}/og/invoice-maker-en.jpg`,
+      alt: "InvoiceTemplateMaker — Professional invoices made simple",
+    }],
+  },
   robots: { index: true, follow: true },
 };
 

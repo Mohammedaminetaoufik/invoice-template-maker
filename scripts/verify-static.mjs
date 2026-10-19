@@ -1,5 +1,29 @@
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, statSync } from "node:fs";
 import { resolve } from "node:path";
+
+function jpegDimensions(file) {
+  const bytes = readFileSync(file);
+  if (bytes[0] !== 0xff || bytes[1] !== 0xd8) return undefined;
+  let offset = 2;
+  const startOfFrame = new Set([0xc0, 0xc1, 0xc2, 0xc3, 0xc5, 0xc6, 0xc7, 0xc9, 0xca, 0xcb, 0xcd, 0xce, 0xcf]);
+  while (offset + 8 < bytes.length) {
+    if (bytes[offset] !== 0xff) { offset++; continue; }
+    const marker = bytes[offset + 1];
+    offset += 2;
+    if (marker === 0xd9 || marker === 0xda) break;
+    const segmentLength = bytes.readUInt16BE(offset);
+    if (startOfFrame.has(marker)) return { height: bytes.readUInt16BE(offset + 3), width: bytes.readUInt16BE(offset + 5) };
+    offset += segmentLength;
+  }
+  return undefined;
+}
+
+function verifyUniqueSocialTags(html, file) {
+  for (const needle of ['<meta property="og:title"', '<meta property="og:description"', '<meta property="og:image"', '<meta name="twitter:card"', '<meta name="twitter:title"', '<meta name="twitter:description"', '<meta name="twitter:image"']) {
+    const count = html.split(needle).length - 1;
+    if (count !== 1) { console.error(`${file}: expected one ${needle}, found ${count}`); failures++; }
+  }
+}
 
 const pairs = [
   ["", ""],
@@ -36,6 +60,14 @@ for (const locale of ["en", "fr"]) {
     ["application/ld+json", "structured data"],
     ["<h1", "static primary heading"],
     ["name=\"description\"", "meta description"],
+    [`property=\"og:locale\" content=\"${locale === "fr" ? "fr_FR" : "en_US"}\"`, "localized Open Graph locale"],
+    [`property=\"og:image\" content=\"https://invoicetemplatemaker.com/og/invoice-maker-${locale}.jpg\"`, "localized Open Graph image"],
+    ["property=\"og:image:width\" content=\"1200\"", "Open Graph image width"],
+    ["property=\"og:image:height\" content=\"630\"", "Open Graph image height"],
+    ["property=\"og:image:alt\"", "Open Graph image alt text"],
+    ["name=\"twitter:card\" content=\"summary_large_image\"", "large Twitter card"],
+    [`name=\"twitter:image\" content=\"https://invoicetemplatemaker.com/og/invoice-maker-${locale}.jpg\"`, "localized Twitter image"],
+    ["name=\"twitter:image:alt\"", "Twitter image alt text"],
     ["src=\"/icon.svg\"", "shared brand mark"],
     ["rel=\"icon\"", "browser icon"],
     ["rel=\"manifest\"", "installable app manifest"],
@@ -44,6 +76,7 @@ for (const locale of ["en", "fr"]) {
   for (const [needle, label] of checks) {
     if (!html.includes(needle)) { console.error(`${file}: missing ${label}`); failures++; }
   }
+  verifyUniqueSocialTags(html, file);
   const title = html.match(/<title>(.*?)<\/title>/)?.[1];
   if (!title || titles.has(title)) { console.error(`${file}: missing or duplicate title`); failures++; }
   if (title) titles.add(title);
@@ -59,8 +92,16 @@ for (const locale of ["en", "fr"]) {
 
 if (sitemapXml.includes("<lastmod>")) { console.error("Sitemap must not fabricate modification dates"); failures++; }
 
-for (const path of ["out/index.html", "out/icon.svg", "out/apple-icon.png", "out/manifest.webmanifest", "out/sw.js", "out/_headers", "out/sitemap.xml", "out/robots.txt", "out/fonts/NotoSans-Regular.woff", "out/fonts/NotoSans-Semibold.woff"]) {
+for (const path of ["out/index.html", "out/icon.svg", "out/apple-icon.png", "out/manifest.webmanifest", "out/sw.js", "out/_headers", "out/sitemap.xml", "out/robots.txt", "out/fonts/NotoSans-Regular.woff", "out/fonts/NotoSans-Semibold.woff", "out/og/invoice-maker-en.jpg", "out/og/invoice-maker-fr.jpg"]) {
   if (!existsSync(resolve(path))) { console.error(`Missing export artifact: ${path}`); failures++; }
+}
+
+for (const locale of ["en", "fr"]) {
+  const file = resolve(`out/og/invoice-maker-${locale}.jpg`);
+  if (!existsSync(file)) continue;
+  const dimensions = jpegDimensions(file);
+  if (dimensions?.width !== 1200 || dimensions?.height !== 630) { console.error(`${file}: expected a 1200x630 JPEG`); failures++; }
+  if (statSync(file).size >= 500_000) { console.error(`${file}: social image must be under 500 KB`); failures++; }
 }
 
 const rootHtml = readFileSync(resolve("out/index.html"), "utf8");
@@ -71,6 +112,10 @@ const rootChecks = [
   ["/fr/", "crawlable French fallback link"],
   ["rel=\"canonical\" href=\"https://invoicetemplatemaker.com/\"", "root canonical"],
   ["hrefLang=\"x-default\"", "root x-default hreflang"],
+  ["property=\"og:locale\" content=\"en_US\"", "root Open Graph locale"],
+  ["property=\"og:locale:alternate\" content=\"fr_FR\"", "root alternate Open Graph locale"],
+  ["property=\"og:image\" content=\"https://invoicetemplatemaker.com/og/invoice-maker-en.jpg\"", "root Open Graph image"],
+  ["name=\"twitter:card\" content=\"summary_large_image\"", "root large Twitter card"],
   ["src=\"/icon.svg\"", "root brand mark"],
   ["rel=\"icon\"", "root browser icon"],
   ["rel=\"manifest\"", "root installable app manifest"],
@@ -79,6 +124,7 @@ const rootChecks = [
 for (const [needle, label] of rootChecks) {
   if (!rootHtml.includes(needle)) { console.error(`out/index.html: missing ${label}`); failures++; }
 }
+verifyUniqueSocialTags(rootHtml, "out/index.html");
 if (rootHtml.includes("Choose Your Language") || rootHtml.includes("entry-choices")) {
   console.error("out/index.html: obsolete language-selection screen is still present");
   failures++;

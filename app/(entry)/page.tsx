@@ -4,16 +4,16 @@ import { BrandMark } from "@/components/BrandMark";
 import { SITE_URL } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Free Invoice Generator in English and French | InvoiceTemplateMaker",
-  description: "Create a free professional invoice online. InvoiceTemplateMaker is available in English and French with private, browser-based PDF generation.",
+  title: "Free Invoice Generator | InvoiceTemplateMaker",
+  description: "Create professional invoices online for free. Customize a template and download a polished PDF—no signup or watermark.",
   alternates: {
     canonical: `${SITE_URL}/`,
     languages: { en: `${SITE_URL}/en/`, fr: `${SITE_URL}/fr/`, "x-default": `${SITE_URL}/` },
   },
   openGraph: {
     type: "website",
-    title: "Free Invoice Generator in English and French | InvoiceTemplateMaker",
-    description: "Create a free professional invoice online. InvoiceTemplateMaker is available in English and French with private, browser-based PDF generation.",
+    title: "Free Invoice Generator | InvoiceTemplateMaker",
+    description: "Create professional invoices online for free. Customize a template and download a polished PDF—no signup or watermark.",
     url: `${SITE_URL}/`,
     siteName: "InvoiceTemplateMaker",
     locale: "en_US",
@@ -27,8 +27,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Free Invoice Generator in English and French | InvoiceTemplateMaker",
-    description: "Create a free professional invoice online. InvoiceTemplateMaker is available in English and French with private, browser-based PDF generation.",
+    title: "Free Invoice Generator | InvoiceTemplateMaker",
+    description: "Create professional invoices online for free. Customize a template and download a polished PDF—no signup or watermark.",
     images: [{
       url: `${SITE_URL}/og/invoice-maker-en.jpg`,
       alt: "InvoiceTemplateMaker — Professional invoices made simple",

@@ -25,6 +25,24 @@ function verifyUniqueSocialTags(html, file) {
   }
 }
 
+function decodeMetadata(value) {
+  return value.replaceAll("&amp;", "&").replaceAll("&quot;", '"').replaceAll("&#x27;", "'").replaceAll("&lt;", "<").replaceAll("&gt;", ">");
+}
+
+function verifyHomeMetadataLengths(html, file) {
+  const values = [
+    [html.match(/<title>(.*?)<\/title>/)?.[1], 60, "page title"],
+    [html.match(/<meta property="og:title" content="([^"]*)"/)?.[1], 60, "Open Graph title"],
+    [html.match(/<meta name="description" content="([^"]*)"/)?.[1], 125, "page description"],
+    [html.match(/<meta property="og:description" content="([^"]*)"/)?.[1], 125, "Open Graph description"],
+  ];
+  for (const [raw, maximum, label] of values) {
+    if (!raw) { console.error(`${file}: missing ${label}`); failures++; continue; }
+    const length = decodeMetadata(raw).length;
+    if (length > maximum) { console.error(`${file}: ${label} is ${length} characters; expected at most ${maximum}`); failures++; }
+  }
+}
+
 const pairs = [
   ["", ""],
   ["invoice-templates", "modeles-factures"],
@@ -125,6 +143,7 @@ for (const [needle, label] of rootChecks) {
   if (!rootHtml.includes(needle)) { console.error(`out/index.html: missing ${label}`); failures++; }
 }
 verifyUniqueSocialTags(rootHtml, "out/index.html");
+verifyHomeMetadataLengths(rootHtml, "out/index.html");
 if (rootHtml.includes("Choose Your Language") || rootHtml.includes("entry-choices")) {
   console.error("out/index.html: obsolete language-selection screen is still present");
   failures++;
@@ -132,6 +151,7 @@ if (rootHtml.includes("Choose Your Language") || rootHtml.includes("entry-choice
 
 for (const localizedFile of [resolve("out/en/index.html"), resolve("out/fr/index.html")]) {
   const html = readFileSync(localizedFile, "utf8");
+  verifyHomeMetadataLengths(html, localizedFile);
   if (html.includes("itm-root-locale-redirect")) {
     console.error(`${localizedFile}: root redirect must not run on an explicit localized URL`);
     failures++;

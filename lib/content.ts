@@ -36,7 +36,7 @@ export const pageContent: Record<Locale, Record<PageKey, PageContent>> = {
     },
     home: {
       title: "Free Invoice Generator & Templates | InvoiceTemplateMaker",
-      description: "Create professional invoices online for free. Choose an editable invoice template, customize it directly and download a PDF. No signup or watermark.",
+      description: "Create professional invoices online for free. Customize a template and download a polished PDF—no signup or watermark.",
       eyebrow: "Free invoice generator",
       h1: "Professional invoices, ready in minutes.",
       intro: "Create a polished invoice PDF in your browser without an account.",
@@ -147,7 +147,7 @@ export const pageContent: Record<Locale, Record<PageKey, PageContent>> = {
     },
     home: {
       title: "Générateur de facture gratuit | InvoiceTemplateMaker",
-      description: "Créez une facture professionnelle gratuitement en ligne. Choisissez un modèle, personnalisez-le directement et téléchargez un PDF sans inscription ni filigrane.",
+      description: "Créez une facture professionnelle gratuitement. Personnalisez un modèle et téléchargez le PDF, sans inscription.",
       eyebrow: "Générateur de facture gratuit",
       h1: "Des factures professionnelles, prêtes en quelques minutes.",
       intro: "Créez une facture soignée dans votre navigateur, choisissez un modèle et téléchargez un PDF net sans compte.",

@@ -21,16 +21,20 @@ const iconUrl = dataUrl("image/svg+xml", Buffer.from(brandIcon));
 
 const locales = {
   en: {
+    eyebrow: "Free invoice generator",
     headline: "Professional Invoices.<br>Made Simple.",
     supporting: "Create <span>•</span> Customize <span>•</span> Download",
     benefits: ["100% Free", "No Signup", "PDF Download"],
+    cta: "Create your free invoice →",
     builtBy: "Built by",
     imageAlt: "InvoiceTemplateMaker — Professional invoices made simple",
   },
   fr: {
+    eyebrow: "Générateur de facture gratuit",
     headline: "Des factures professionnelles,<br>en toute simplicité.",
     supporting: "Créez <span>•</span> Personnalisez <span>•</span> Téléchargez",
     benefits: ["100 % gratuit", "Sans inscription", "PDF à télécharger"],
+    cta: "Créer une facture gratuite →",
     builtBy: "Créé par",
     imageAlt: "InvoiceTemplateMaker — Des factures professionnelles, en toute simplicité",
   },
@@ -87,6 +91,7 @@ function document(locale) {
     .benefits { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 27px; }
     .benefit { display: flex; align-items: center; gap: 7px; min-height: 31px; padding: 0 11px; border: 1px solid rgba(24,76,73,.16); border-radius: 999px; color: #184c49; background: rgba(255,255,255,.74); font-size: 11.5px; font-weight: 700; box-shadow: 0 6px 18px rgba(25,40,37,.045); }
     .benefit::before { content: "✓"; display: grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; color: white; background: #184c49; font-size: 10px; }
+    .cta { display: inline-flex; align-items: center; min-height: 45px; margin-top: 19px; padding: 0 18px; border-radius: 8px; color: #fff; background: #b84722; box-shadow: 0 10px 24px rgba(184,71,34,.23); font-size: 13.5px; font-weight: 800; letter-spacing: .005em; }
     .built-by { position: absolute; z-index: 5; left: 58px; bottom: 41px; display: flex; align-items: baseline; gap: 7px; color: #65706c; font-size: 12px; }
     .built-by strong { color: #102f2d; font-size: 17px; letter-spacing: .02em; }
     .built-by::after { content: ""; width: 32px; height: 1px; margin-left: 4px; background: #f4a282; }
@@ -142,10 +147,11 @@ function document(locale) {
   <main class="canvas" role="img" aria-label="${copy.imageAlt}">
     <section class="copy">
       <div class="brand"><img src="${iconUrl}" alt=""><span>InvoiceTemplateMaker</span></div>
-      <div class="eyebrow">Free invoice generator</div>
+      <div class="eyebrow">${copy.eyebrow}</div>
       <h1>${copy.headline}</h1>
       <p class="supporting">${copy.supporting}</p>
       <div class="benefits">${copy.benefits.map((benefit) => `<div class="benefit">${benefit}</div>`).join("")}</div>
+      <div class="cta">${copy.cta}</div>
     </section>
     <div class="built-by"><span>${copy.builtBy}</span><strong>Ternyxa</strong></div>
     <section class="product-stage" aria-hidden="true">

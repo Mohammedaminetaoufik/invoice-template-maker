@@ -1,12 +1,16 @@
-name: Release candidate checks
+name: Main branch checks
 
 on:
   push:
     branches:
-      - feature/v2-pdf-reliability
+      - main
   pull_request:
     branches:
       - main
+
+concurrency:
+  group: main-checks-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read

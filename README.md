@@ -50,7 +50,17 @@ The visual document, preview and PDF share `lib/pdf-layout.ts`; financial calcul
 
 ## Static Cloudflare deployment
 
-Preserve the existing Worker, GitHub integration and custom domain. `npm run build` exports `out/`. `wrangler.jsonc` declares static assets and no runtime backend.
+The production branch is `main`. The local branch tracks `origin/main`, so running `git push` while on `main` publishes the commit to GitHub's `main` branch. The GitHub Actions workflow validates pull requests and every push to `main`.
+
+Preserve the existing Worker, GitHub integration and custom domain. In Cloudflare Workers & Pages, select the Worker and confirm these one-time settings under **Settings > Builds**:
+
+- Git repository: `Mohammedaminetaoufik/invoice-template-maker`
+- Production branch: `main`
+- Build command: `npm run build`
+- Deploy command: `npx wrangler deploy --config wrangler.jsonc`
+- Root directory: `/`
+
+After those settings are saved, each push to `main` is built and deployed automatically by Cloudflare. `npm run build` exports `out/`; `wrangler.jsonc` declares the static assets and no runtime backend. The GitHub Actions workflow intentionally performs validation only so there is one deployment owner: Cloudflare's Git integration.
 
 A non-publishing configuration check:
 
@@ -58,6 +68,6 @@ A non-publishing configuration check:
 npx --yes wrangler@4.150.0 deploy --dry-run --config wrangler.jsonc
 ```
 
-`wrangler versions upload --config wrangler.jsonc` can upload a Worker version without routing production traffic. The actual Cloudflare dashboard build, branch and deploy-command settings must be inspected before pushing code; local source does not prove those remote settings. Never run `wrangler deploy`, promote a version or merge to `main` without owner approval. The GitHub Actions workflow only runs checks and a dry-run.
+`wrangler versions upload --config wrangler.jsonc` can upload a Worker version without routing production traffic. Local source cannot prove the remote dashboard settings, so confirm the production branch and commands once when connecting or troubleshooting the integration. The GitHub Actions workflow only runs checks and a dry-run; it does not create a second deployment.
 
 Local file changes and successful builds are not production deployment. See [the V3.1 release audit](V3_1_RELEASE_AUDIT.md) for current results, manual checks and approval steps.

@@ -1,0 +1,15 @@
+import { ArrowRight } from "lucide-react";
+import type { Locale } from "@/lib/i18n";
+import { reminderArticles } from "@/lib/blog";
+import { routeMap } from "@/lib/routes";
+
+export function BlogArticlePage({ locale }: { locale: Locale }) {
+  const article = reminderArticles[locale];
+  return <main>
+    <article>
+      <header className="article-hero"><div className="shell article-header-inner"><nav aria-label={locale === "fr" ? "Fil d’Ariane" : "Breadcrumb"}><a href={routeMap.home[locale]}>{locale === "fr" ? "Accueil" : "Home"}</a><span>/</span><a href={routeMap.blog[locale]}>Blog</a><span>/</span><span aria-current="page">{locale === "fr" ? "Relances" : "Reminders"}</span></nav><span className="eyebrow">{article.eyebrow}</span><h1>{article.title}</h1><p>{article.description}</p><div className="article-meta"><span>{article.publisher}</span><span>{article.readingTime}</span></div></div></header>
+      <div className="shell article-layout"><aside className="article-toc"><strong>{locale === "fr" ? "Dans ce guide" : "In this guide"}</strong><ol>{article.sections.map((section, index) => <li key={section.heading}><a href={`#section-${index + 1}`}>{section.heading}</a></li>)}</ol></aside><div className="article-body">{article.sections.map((section, index) => <section id={`section-${index + 1}`} key={section.heading}><h2>{section.heading}</h2>{section.paragraphs?.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}{section.list && <ul>{section.list.map((item) => <li key={item}>{item}</li>)}</ul>}{section.example && <div className="message-example"><p>{section.example.label}</p><strong>{locale === "fr" ? "Objet" : "Subject"}: {section.example.subject}</strong><pre>{section.example.body}</pre></div>}{index === 3 && <div className="article-cta"><h3>{locale === "fr" ? "Prêt à rédiger votre message ?" : "Ready to draft your message?"}</h3><p>{locale === "fr" ? "Créez une relance adaptée, puis relisez-la avant l’envoi." : "Create a tailored reminder, then review it before sending."}</p><a className="button" href={routeMap.reminder[locale]}>{locale === "fr" ? "Ouvrir le générateur de relance" : "Open the reminder generator"}<ArrowRight size={17} /></a></div>}</section>)}</div></div>
+    </article>
+    <section className="article-next"><div className="shell"><span className="eyebrow">{locale === "fr" ? "Étape suivante" : "Next step"}</span><h2>{locale === "fr" ? "Transformez les bonnes pratiques en message prêt à envoyer." : "Turn the guidance into a message ready to send."}</h2><div><a className="button" href={routeMap.reminder[locale]}>{locale === "fr" ? "Créer une relance" : "Create a reminder"}</a><a className="button button-ghost" href={routeMap.home[locale]}>{locale === "fr" ? "Créer une facture" : "Create an invoice"}</a></div><p><a href="https://ternyxa.com/" target="_blank" rel="noopener noreferrer">{locale === "fr" ? "InvoiceTemplateMaker est un outil Ternyxa ↗" : "InvoiceTemplateMaker is a Ternyxa tool ↗"}</a></p></div></section>
+  </main>;
+}

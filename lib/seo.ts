@@ -38,7 +38,7 @@ export function pageMetadata(locale: Locale, key: PageKey): Metadata {
       locale: locale === "fr" ? "fr_FR" : "en_US",
       alternateLocale: locale === "fr" ? "en_US" : "fr_FR",
       images: [socialImage(locale)],
-      type: "website",
+      type: key === "reminderArticle" ? "article" : "website",
     },
     twitter: {
       card: "summary_large_image",
@@ -46,5 +46,6 @@ export function pageMetadata(locale: Locale, key: PageKey): Metadata {
       description: content.description,
       images: [socialImage(locale)],
     },
+    robots: { index: true, follow: true },
   };
 }

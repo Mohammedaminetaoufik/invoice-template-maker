@@ -14,7 +14,8 @@ export function Header({ locale }: { locale: Locale }) {
     ["templates", t.nav.templates],
     ["simple", t.nav.simple],
     ["freelance", t.nav.freelance],
-    ["guide", t.nav.guide],
+    ["reminder", t.nav.reminder],
+    ["blog", t.nav.blog],
   ] as const;
 
   return (

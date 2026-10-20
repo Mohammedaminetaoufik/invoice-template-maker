@@ -34,6 +34,30 @@ export const pageContent: Record<Locale, Record<PageKey, PageContent>> = {
         { title: "Discover more tools", body: "Visit Ternyxa to explore its tools ecosystem. Following this link is optional and does not transfer the invoice draft stored in your browser." },
       ],
     },
+    reminder: {
+      title: "Free Late Payment Reminder Generator | InvoiceTemplateMaker",
+      description: "Create a free payment reminder for an overdue or upcoming invoice. Choose a friendly, professional, or firm tone—no signup.",
+      eyebrow: "Free payment reminder tool",
+      h1: "Late Payment Reminder Generator",
+      intro: "Create a clear, professional payment reminder in seconds. Your invoice details stay in your browser.",
+      sections: [],
+    },
+    blog: {
+      title: "Invoice Guides & Payment Tips | InvoiceTemplateMaker",
+      description: "Practical invoice and payment guides for freelancers and small businesses, with free tools and clear examples.",
+      eyebrow: "Practical guides",
+      h1: "Better invoices. Clearer payment follow-ups.",
+      intro: "Straightforward guidance for creating invoices, following up professionally, and keeping client communication clear.",
+      sections: [],
+    },
+    reminderArticle: {
+      title: "How to Write a Late Payment Reminder Email (Examples)",
+      description: "Learn how to send friendly, professional, and firm late payment reminder emails, with practical examples for freelancers.",
+      eyebrow: "Payment reminder guide",
+      h1: "How to Write a Late Payment Reminder Email (With Examples)",
+      intro: "A useful reminder is specific, calm, and easy to act on. Here is how to follow up without damaging a good client relationship.",
+      sections: [],
+    },
     home: {
       title: "Free Invoice Generator & Templates | InvoiceTemplateMaker",
       description: "Create professional invoices online for free. Customize a template and download a polished PDF—no signup or watermark.",
@@ -107,7 +131,7 @@ export const pageContent: Record<Locale, Record<PageKey, PageContent>> = {
       sections: [
         { title: "Local draft and logo storage", body: "The generator uses local storage for invoice drafts and preferences, and IndexedDB for logos. Reset clears the active draft and its logo; browser settings can clear all site storage, including recovery copies. Downloaded backups may contain payment details and logos, so keep them private." },
         { title: "PDF generation", body: "PDF files are generated in your browser. Invoice content does not need to be uploaded to our servers to create the file." },
-        { title: "Website measurement", body: "If privacy-respecting analytics are introduced, this policy will be updated with the provider, purpose, and available controls." },
+        { title: "Website measurement", body: "With your permission, the site loads Google Analytics 4 using Google tag G-PMW46NFNGD to measure page visits and understand how the website is used. Google may process browser, device and approximate-location information under its own terms. Invoice content, uploaded logos and generated PDFs are not intentionally sent to Analytics. Analytics stays off until you select Allow analytics. Use Privacy choices in the footer to decline or withdraw consent later." },
       ],
     },
     terms: {
@@ -144,6 +168,30 @@ export const pageContent: Record<Locale, Record<PageKey, PageContent>> = {
         { title: "Questions sur votre facture", body: "Nous ne pouvons pas vérifier le traitement fiscal ou les obligations de facturation locales. Consultez votre comptable ou l’autorité compétente pour votre activité." },
         { title: "Découvrir d’autres outils", body: "Visitez Ternyxa pour explorer ses outils. Ce lien est facultatif et ne transmet pas le brouillon conservé dans votre navigateur." },
       ],
+    },
+    reminder: {
+      title: "Générateur de Relance Gratuit | InvoiceTemplateMaker",
+      description: "Créez gratuitement un mail de relance pour une facture échue ou à venir. Choisissez un ton cordial, professionnel ou ferme.",
+      eyebrow: "Outil gratuit de relance",
+      h1: "Générateur de relance de facture impayée",
+      intro: "Rédigez une relance claire et professionnelle en quelques secondes. Les données de votre facture restent dans votre navigateur.",
+      sections: [],
+    },
+    blog: {
+      title: "Guides de Facturation | InvoiceTemplateMaker",
+      description: "Guides pratiques sur la facturation et les relances de paiement, avec des outils gratuits et des exemples utiles.",
+      eyebrow: "Guides pratiques",
+      h1: "Des factures plus claires, des relances plus simples.",
+      intro: "Des conseils concrets pour facturer, suivre les paiements et communiquer avec vos clients de manière professionnelle.",
+      sections: [],
+    },
+    reminderArticle: {
+      title: "Comment relancer une facture impayée ? Exemples de mails",
+      description: "Découvrez quand et comment relancer une facture impayée, avec des exemples de mails cordiaux, professionnels et fermes.",
+      eyebrow: "Guide de relance",
+      h1: "Comment relancer une facture impayée ? Exemples de mails",
+      intro: "Une bonne relance rappelle les faits, facilite le paiement et préserve la relation commerciale. Voici une méthode simple et des exemples adaptables.",
+      sections: [],
     },
     home: {
       title: "Générateur de facture gratuit | InvoiceTemplateMaker",
@@ -218,7 +266,7 @@ export const pageContent: Record<Locale, Record<PageKey, PageContent>> = {
       sections: [
         { title: "Stockage local des brouillons et logos", body: "Le stockage local conserve vos brouillons et préférences ; IndexedDB conserve les logos. La remise à zéro efface le brouillon actif et son logo. Les réglages du navigateur permettent d’effacer toutes les données du site, y compris les copies de récupération. Gardez vos sauvegardes privées : elles peuvent contenir des coordonnées bancaires et des logos." },
         { title: "Génération PDF côté client", body: "La création du fichier PDF est effectuée directement sur votre machine. Vos données de facturation ne transitent par aucun serveur distant." },
-        { title: "Mesure d'audience", body: "Si des outils d'analyse anonymes sont introduits, cette politique sera mise à jour avec l'ensemble des détails techniques et des choix disponibles." },
+        { title: "Mesure d'audience", body: "Avec votre autorisation, le site charge Google Analytics 4 au moyen de la balise Google G-PMW46NFNGD afin de mesurer les visites et de comprendre l'utilisation du site. Google peut traiter des informations sur le navigateur, l'appareil et la localisation approximative selon ses propres conditions. Le contenu des factures, les logos importés et les PDF générés ne sont pas volontairement envoyés à Analytics. La mesure reste désactivée jusqu'à ce que vous choisissiez Autoriser les statistiques. Utilisez Choix de confidentialité dans le pied de page pour refuser ou retirer votre consentement." },
       ],
     },
     terms: {

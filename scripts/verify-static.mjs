@@ -43,6 +43,12 @@ function verifyHomeMetadataLengths(html, file) {
   }
 }
 
+function routeMapPath(locale, target) {
+  if (target === "article") return locale === "fr" ? "/fr/blog/comment-relancer-une-facture-impayee/" : "/en/blog/how-to-write-a-late-payment-reminder/";
+  if (target === "reminder") return locale === "fr" ? "/fr/generateur-relance-facture-impayee/" : "/en/late-payment-reminder-generator/";
+  return `/${locale}/`;
+}
+
 const pairs = [
   ["", ""],
   ["invoice-templates", "modeles-factures"],
@@ -50,6 +56,9 @@ const pairs = [
   ["freelance-invoice", "facture-freelance"],
   ["invoice-with-logo", "facture-avec-logo"],
   ["how-to-make-an-invoice", "comment-faire-une-facture"],
+  ["late-payment-reminder-generator", "generateur-relance-facture-impayee"],
+  ["blog", "blog"],
+  ["blog/how-to-write-a-late-payment-reminder", "blog/comment-relancer-une-facture-impayee"],
   ["privacy", "confidentialite"],
   ["terms", "conditions"],
   ["about", "a-propos"],
@@ -104,6 +113,21 @@ for (const locale of ["en", "fr"]) {
   for (const match of html.matchAll(/(?:src|href)="(\/_next\/[^"?]+)(?:\?[^" ]*)?"/g)) {
     const assetPath = resolve("out", decodeURIComponent(match[1].slice(1)));
     if (!existsSync(assetPath)) { console.error(`Missing referenced static asset: ${assetPath}`); failures++; }
+  }
+  if (englishSlug === "late-payment-reminder-generator") {
+    for (const needle of ["reminder-workspace", '"SoftwareApplication"', '"BreadcrumbList"', routeMapPath(locale, "article")]) {
+      if (!html.includes(needle)) { console.error(`${file}: reminder page missing ${needle}`); failures++; }
+    }
+  }
+  if (englishSlug === "blog") {
+    for (const needle of ["article-card", '"CollectionPage"', routeMapPath(locale, "article")]) {
+      if (!html.includes(needle)) { console.error(`${file}: blog index missing ${needle}`); failures++; }
+    }
+  }
+  if (englishSlug === "blog/how-to-write-a-late-payment-reminder") {
+    for (const needle of ["article-body", '"BlogPosting"', '"BreadcrumbList"', routeMapPath(locale, "reminder"), routeMapPath(locale, "home")]) {
+      if (!html.includes(needle)) { console.error(`${file}: article missing ${needle}`); failures++; }
+    }
   }
 }
 }

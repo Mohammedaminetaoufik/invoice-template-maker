@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Check, ChevronDown, Download, Plus, RotateCcw } from "lucide-react";
+import { BellRing, Check, ChevronDown, Download, Plus, RotateCcw } from "lucide-react";
 import { getDictionary, type Locale } from "@/lib/i18n";
 import { calculateTotals, createDefaultDraft, cryptoSafeId, currencyCodes, formatDate, formatMoney, type CurrencyCode, type InvoiceDraft, type TemplateId } from "@/lib/invoice";
 import { applyRequestedTemplate, DRAFT_STORAGE_KEY, parseStoredDraft, serializeDraft } from "@/lib/draft-storage";
@@ -11,6 +11,8 @@ import { TemplatePicker } from "./TemplatePicker";
 import { getEditorCopy } from "@/lib/editor-copy";
 import { isTemplate } from "@/lib/templates";
 import { QuickEditNavigator } from "./QuickEditNavigator";
+import { routeMap } from "@/lib/routes";
+import { saveReminderPrefill } from "@/lib/reminder";
 
 type Status = "idle" | "working" | "done" | "error" | "validation" | "calculation" | "unsupported" | "saved" | "importError";
 
@@ -147,6 +149,20 @@ export function InvoiceBuilder({ locale, initialTemplate, onResultChange }: { lo
     }
   }
 
+  function openReminder() {
+    if (total === undefined || total <= 0) return;
+    saveReminderPrefill(sessionStorage, {
+      clientName: draft.clientName,
+      businessName: draft.businessName,
+      invoiceNumber: draft.invoiceNumber,
+      outstandingBalance: total,
+      currency: draft.currency,
+      dueDate: draft.dueDate,
+      senderSignature: draft.businessName,
+    });
+    window.location.assign(routeMap.reminder[locale]);
+  }
+
   function textField(key: "businessName" | "clientName" | "businessEmail" | "clientEmail" | "invoiceNumber" | "issueDate" | "dueDate" | "iban" | "swift" | "purchaseOrder" | "paymentTerms" | "siren" | "siret" | "vatNumber" | "ice" | "taxIdentifier" | "commercialRegister" | "registrationNumber", label: string, type = "text") {
     return <label key={key}><span>{label}</span><input type={type} value={draft[key] ?? ""} onChange={(event) => update(key, event.target.value)} /></label>;
   }
@@ -209,6 +225,7 @@ export function InvoiceBuilder({ locale, initialTemplate, onResultChange }: { lo
           </fieldset>
         </aside>
       </div>
+      {step === 3 && <aside className="reminder-handoff" aria-labelledby="reminder-handoff-title"><BellRing aria-hidden="true" /><div><h3 id="reminder-handoff-title">{locale === "fr" ? "Un paiement tarde ?" : "Payment running late?"}</h3><p>{total === 0 ? (locale === "fr" ? "Cette facture est entièrement réglée : aucune relance n’est nécessaire." : "This invoice is paid in full, so no reminder is needed.") : (locale === "fr" ? "Réutilisez localement le client, le numéro, l’échéance, la devise et le solde restant. Vous pourrez tout modifier avant l’envoi." : "Reuse the client, number, due date, currency, and remaining balance locally. You can edit everything before sending.")}</p></div><button type="button" className="button" disabled={total === undefined || total <= 0} onClick={openReminder}>{locale === "fr" ? "Créer une relance de paiement" : "Create a payment reminder"}</button></aside>}
     </div>
   </section>;
 }

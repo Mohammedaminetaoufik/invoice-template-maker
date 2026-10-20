@@ -3,6 +3,9 @@ import type { Metadata } from "next";
 import { ContentPage } from "@/components/ContentPage";
 import { HomePage } from "@/components/HomePage";
 import { StructuredData } from "@/components/StructuredData";
+import { PaymentReminderPage } from "@/components/PaymentReminderPage";
+import { BlogIndexPage } from "@/components/BlogIndexPage";
+import { BlogArticlePage } from "@/components/BlogArticlePage";
 import { pageMetadata } from "@/lib/seo";
 import { pageKeyFromSlug, routeMap, type PageKey } from "@/lib/routes";
 
@@ -25,5 +28,6 @@ export default async function EnglishPage({ params }: Props) {
   const { slug } = await params;
   const key = pageKeyFromSlug("en", slug);
   if (!key) notFound();
-  return <><StructuredData locale="en" pageKey={key} />{key === "home" ? <HomePage locale="en" /> : <ContentPage locale="en" pageKey={key} />}</>;
+  const page = key === "home" ? <HomePage locale="en" /> : key === "reminder" ? <PaymentReminderPage locale="en" /> : key === "blog" ? <BlogIndexPage locale="en" /> : key === "reminderArticle" ? <BlogArticlePage locale="en" /> : <ContentPage locale="en" pageKey={key} />;
+  return <><StructuredData locale="en" pageKey={key} />{page}</>;
 }

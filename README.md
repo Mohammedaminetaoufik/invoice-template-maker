@@ -23,6 +23,8 @@ Open `http://localhost:3000`. Stop the development server before a Windows clean
 - Optional registration identifiers, purchase orders and payment instructions
 - Validated/versioned local drafts and JSON backup/restore with logos
 - Static bilingual SEO routes, About/Contact/Privacy/Terms pages and Ternyxa links
+- Browser-only English/French late-payment reminder generator with safe invoice handoff
+- Static bilingual payment guide and blog indexes
 - Installable phone app with EN/FR launch routing, home-screen icons and offline invoice/PDF support after the first successful online load
 
 ## Install on a phone
@@ -56,11 +58,11 @@ Preserve the existing Worker, GitHub integration and custom domain. In Cloudflar
 
 - Git repository: `Mohammedaminetaoufik/invoice-template-maker`
 - Production branch: `main`
-- Build command: `npm run build`
-- Deploy command: `npx wrangler deploy --config wrangler.jsonc`
+- Build command: `npm run check`
+- Deploy command: `npx wrangler versions upload --config wrangler.jsonc`
 - Root directory: `/`
 
-After those settings are saved, each push to `main` is built and deployed automatically by Cloudflare. `npm run build` exports `out/`; `wrangler.jsonc` declares the static assets and no runtime backend. The GitHub Actions workflow intentionally performs validation only so there is one deployment owner: Cloudflare's Git integration.
+After those settings are saved, each push to `main` is validated and uploaded as a new Worker version by Cloudflare. It does **not** change production traffic. `npm run check` exports and verifies `out/`; `wrangler.jsonc` declares the static assets and no runtime backend. The GitHub Actions workflow intentionally performs validation only, so Cloudflare's native Git integration is the single version uploader.
 
 A non-publishing configuration check:
 
@@ -68,6 +70,6 @@ A non-publishing configuration check:
 npx --yes wrangler@4.150.0 deploy --dry-run --config wrangler.jsonc
 ```
 
-`wrangler versions upload --config wrangler.jsonc` can upload a Worker version without routing production traffic. Local source cannot prove the remote dashboard settings, so confirm the production branch and commands once when connecting or troubleshooting the integration. The GitHub Actions workflow only runs checks and a dry-run; it does not create a second deployment.
+The `wrangler deploy --dry-run` command above validates packaging locally; despite the command name, `--dry-run` does not upload or promote anything. Local source cannot prove the remote dashboard settings, repository connection, build history, or active version. Confirm them in Cloudflare before relying on push-triggered uploads.
 
-Local file changes and successful builds are not production deployment. See [the V3.1 release audit](V3_1_RELEASE_AUDIT.md) for current results, manual checks and approval steps.
+Local file changes, GitHub pushes, successful builds, and version uploads are not production promotion. See [the Cloudflare release guide](docs/cloudflare-release.md) for setup, preview, promotion, rollback, and troubleshooting, and [the V3.1 release audit](V3_1_RELEASE_AUDIT.md) for the earlier baseline.

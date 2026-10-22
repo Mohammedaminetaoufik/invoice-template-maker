@@ -45,7 +45,7 @@ export function PaymentReminderPage({ locale }: { locale: Locale }) {
   const c = content[locale];
   const meta = pageContent[locale].reminder;
   return <main>
-    <section className="content-hero reminder-hero"><div className="shell content-hero-inner"><span className="eyebrow">{c.kicker}</span><h1>{meta.h1}</h1><p>{c.intro}</p></div></section>
+    <section className="content-hero reminder-hero"><div className="shell content-hero-inner"><span className="eyebrow">{c.kicker}</span><h1>{meta.h1}</h1><p>{c.intro}</p><div className="content-hero-actions"><a className="button button-ghost" href={routeMap.home[locale]}>{locale === "fr" ? "Créer d’abord une facture" : "Create an invoice first"}<ArrowRight size={16} /></a></div></div></section>
     <PaymentReminderGenerator locale={locale} />
     <section className="reminder-content"><div className="shell reminder-content-grid">{c.sections.map(([title, body]) => <article key={title}><h2>{title}</h2><p>{body}</p></article>)}</div></section>
     <section className="faq-section reminder-faq"><div className="shell faq-grid"><div className="section-heading sticky-heading"><span className="eyebrow">FAQ</span><h2>{c.faqTitle}</h2></div><div className="faq-list">{c.faqs.map(([question, answer]) => <details key={question}><summary>{question}<span>+</span></summary><p>{answer}</p></details>)}</div></div></section>

@@ -13,6 +13,7 @@ import { isTemplate } from "@/lib/templates";
 import { QuickEditNavigator } from "./QuickEditNavigator";
 import { routeMap } from "@/lib/routes";
 import { saveReminderPrefill } from "@/lib/reminder";
+import { trackEvent } from "@/lib/analytics";
 
 type Status = "idle" | "working" | "done" | "error" | "validation" | "calculation" | "unsupported" | "saved" | "importError";
 
@@ -31,6 +32,7 @@ export function InvoiceBuilder({ locale, initialTemplate, onResultChange }: { lo
   const [guidance, setGuidance] = useState(true);
   const [activeField, setActiveField] = useState<{ field: string; itemId?: string }>();
   const [downloadInitiated, setDownloadInitiated] = useState(false);
+  const customizationTracked = useRef(false);
   const step = draft.wizardStep ?? 1;
   useEffect(() => { onResultChange?.(step === 3 && downloadInitiated); }, [step, downloadInitiated, onResultChange]);
   let total: number | undefined;
@@ -47,6 +49,7 @@ export function InvoiceBuilder({ locale, initialTemplate, onResultChange }: { lo
       const requested = new URLSearchParams(window.location.search).get("template");
       const next = applyRequestedTemplate(restored, requested);
       setDraft(isTemplate(requested) || (!saved && initialTemplate) ? { ...next, wizardStep: 2 } : next);
+      if (isTemplate(requested)) trackEvent("invoice_template_selected", { template_id: requested, locale, source: "page_cta" });
     } catch { setStorageError(true); }
     setReady(true);
   }, [locale, initialTemplate]);
@@ -63,6 +66,10 @@ export function InvoiceBuilder({ locale, initialTemplate, onResultChange }: { lo
     try { calculateTotals({ ...draft, [key]: value }); }
     catch { setStatus("calculation"); return; }
     setDraft((current) => ({ ...current, [key]: value }));
+    if (key !== "wizardStep" && key !== "template" && !customizationTracked.current) {
+      customizationTracked.current = true;
+      trackEvent("invoice_customization_started", { locale });
+    }
     setStatus("idle");
   };
   const updateItem = (id: string, key: "description" | "quantity" | "rate", value: string | number) => update("items", draft.items.map((item) => item.id === id ? { ...item, [key]: value } : item));
@@ -86,6 +93,7 @@ export function InvoiceBuilder({ locale, initialTemplate, onResultChange }: { lo
   function chooseTemplate(template: TemplateId) {
     if (logoBusy || status === "working") return;
     update("template", template);
+    trackEvent("invoice_template_selected", { template_id: template, locale });
     if (step === 1) update("wizardStep", 2);
     setShowTemplates(false);
     setTimeout(() => { heading.current?.focus(); heading.current?.scrollIntoView({ block: "start" }); }, 0);
@@ -107,7 +115,10 @@ export function InvoiceBuilder({ locale, initialTemplate, onResultChange }: { lo
         printWindow.location.replace(url);
         printWindow.onload = () => { try { printWindow.print(); } catch { /* The PDF viewer's print control remains available. */ } };
         setTimeout(() => URL.revokeObjectURL(url), 60_000);
-      } else downloadPdf(bytes, `${draft.invoiceNumber || "invoice"}.pdf`);
+      } else {
+        downloadPdf(bytes, `${draft.invoiceNumber || "invoice"}.pdf`);
+        trackEvent("invoice_pdf_download", { template_id: draft.template, locale });
+      }
       update("wizardStep", 3); setStatus(print ? "idle" : "done");
       if (!print) setDownloadInitiated(true);
       setActiveField(undefined); setShowSettings(false); setShowTemplates(false);
@@ -160,6 +171,7 @@ export function InvoiceBuilder({ locale, initialTemplate, onResultChange }: { lo
       dueDate: draft.dueDate,
       senderSignature: draft.businessName,
     });
+    trackEvent("invoice_to_reminder", { locale });
     window.location.assign(routeMap.reminder[locale]);
   }
 

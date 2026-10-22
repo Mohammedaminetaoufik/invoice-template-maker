@@ -1,0 +1,7 @@
+import { ArrowRight, Check } from "lucide-react";
+import { routeMap } from "@/lib/routes";
+
+export function FrenchHomeGrowth() {
+  const steps = [["1. Choisir un modèle", "Sélectionnez une présentation simple, freelance ou avec logo selon votre activité."], ["2. Personnaliser sa facture", "Modifiez directement les coordonnées, prestations, dates, montants et modalités de règlement."], ["3. Télécharger le PDF", "Relisez l’aperçu, créez le PDF dans votre navigateur et envoyez-le à votre client."]];
+  return <section className="french-home-growth"><div className="shell"><div className="section-heading"><span className="eyebrow">Simple et gratuit</span><h2>Comment créer une facture gratuitement en 3 étapes ?</h2><p>Un parcours rapide pour les freelances, indépendants, auto-entrepreneurs, artisans et petites entreprises.</p></div><div className="growth-step-grid">{steps.map(([title, body]) => <article key={title}><Check size={19} /><div><h3>{title}</h3><p>{body}</p></div></article>)}</div><nav className="growth-links" aria-label="Choisir une ressource de facturation"><a href={routeMap.simple.fr}>Personnaliser un modèle de facture simple<ArrowRight size={15} /></a><a href={routeMap.freelance.fr}>Créer une facture freelance<ArrowRight size={15} /></a><a href={routeMap.logo.fr}>Ajouter un logo à sa facture<ArrowRight size={15} /></a><a href={routeMap.guide.fr}>Lire le guide pour faire une facture<ArrowRight size={15} /></a></nav></div></section>;
+}

@@ -78,11 +78,11 @@ export const pageContent: Record<Locale, Record<PageKey, PageContent>> = {
       ],
     },
     simple: {
-      title: "Simple Invoice Template | Free Downloadable PDF",
-      description: "Create a simple invoice in minutes with clear line items, tax, and payment terms. Free and easy to use online.",
+      title: "Simple Invoice Template – Free Editable PDF",
+      description: "Customize a free simple invoice template, add your details, and download a professional PDF. No signup or watermark required.",
       eyebrow: "Simple invoice template",
-      h1: "A clean invoice that gets straight to the point",
-      intro: "Clean spacing, readable totals, and no clutter. Perfect for fast billing.",
+      h1: "Simple Invoice Template — Customize and Download Free",
+      intro: "See the clean minimal design, customize every essential detail, and download a professional PDF without an account or watermark.",
       sections: [
         { title: "What belongs on a simple invoice", body: "Your business name, client contact, issue date, due date, invoice number, line items, and payment instructions." },
         { title: "Clear payment terms", body: "Include payment methods, bank details, and the due date so customers know exactly how and when to pay." },
@@ -110,11 +110,11 @@ export const pageContent: Record<Locale, Record<PageKey, PageContent>> = {
       ],
     },
     guide: {
-      title: "How to Make an Invoice — Step-by-Step Guide",
-      description: "Learn how to make an invoice with the essential details, clear line items, tax, payment terms, and a professional downloadable PDF.",
+      title: "How to Make an Invoice (Free Example & Step-by-Step Guide)",
+      description: "Learn how to make an invoice step by step. See a complete freelancer example, avoid common mistakes, and create a free PDF.",
       eyebrow: "Invoice guide",
-      h1: "How to make an invoice clients can act on",
-      intro: "A good invoice documents the work, makes the amount due unambiguous, and tells your client what to do next.",
+      h1: "How to Make an Invoice: Step-by-Step with Example",
+      intro: "Create a clear invoice by identifying both parties, numbering and dating it, itemizing the work, calculating the balance, and adding payment instructions.",
       sections: [
         { title: "1. Identify both parties", body: "Start with your business name and contact details, then add the legal or trading name and address of the customer you are billing." },
         { title: "2. Number and date the invoice", body: "Give each invoice a unique reference. Include the issue date and a realistic due date that matches the terms agreed with the client." },
@@ -213,11 +213,11 @@ export const pageContent: Record<Locale, Record<PageKey, PageContent>> = {
       ],
     },
     simple: {
-      title: "Modèle de Facture Simple — Générateur PDF Gratuit",
-      description: "Créez une facture simple, claire et professionnelle en ligne en quelques secondes. Outil gratuit, rapide et accessible sans création de compte.",
+      title: "Modèle de Facture Simple – PDF Gratuit et Modifiable",
+      description: "Personnalisez un modèle de facture simple gratuit et téléchargez un PDF professionnel, sans inscription ni filigrane.",
       eyebrow: "Modèle de facture simple",
-      h1: "Une facture simple qui va droit à l'essentiel",
-      intro: "Une mise en page aérée et lisible sans superflu visuel, conçue pour que vos clients comprennent immédiatement le montant à régler.",
+      h1: "Modèle de Facture Simple — À Personnaliser Gratuitement",
+      intro: "Découvrez un modèle épuré, personnalisez les informations essentielles et téléchargez un PDF professionnel sans compte ni filigrane.",
       sections: [
         { title: "Ce qu'une facture simple doit comporter", body: "L'identité de votre entreprise, les coordonnées du client, un numéro unique, les dates d'émission et d'échéance, le détail des prestations et le montant total." },
         { title: "Des instructions de règlement explicites", body: "Renseignez vos coordonnées bancaires et vos délais de paiement. Des consignes claires facilitent le traitement comptable." },
@@ -245,11 +245,11 @@ export const pageContent: Record<Locale, Record<PageKey, PageContent>> = {
       ],
     },
     guide: {
-      title: "Comment Faire une Facture — Guide Étape par Étape",
-      description: "Découvrez les étapes pour faire une facture claire : coordonnées, numérotation, prestations, taxes applicables et conditions de règlement.",
+      title: "Comment Faire une Facture ? Exemple et Guide Étape par Étape",
+      description: "Apprenez à faire une facture étape par étape avec un exemple complet, les informations essentielles et un outil PDF gratuit.",
       eyebrow: "Guide de facturation",
-      h1: "Comment faire une facture claire et efficace",
-      intro: "Une bonne facture documente précisément la prestation, clarifie les montants dus et indique clairement les modalités de paiement.",
+      h1: "Comment Faire une Facture : Étapes et Exemple Complet",
+      intro: "Identifiez les deux parties, numérotez et datez la facture, détaillez les prestations, calculez le solde et ajoutez les modalités de règlement.",
       sections: [
         { title: "1. Identifiez les deux parties", body: "Indiquez lisiblement votre nom ou raison sociale, adresse et coordonnées, ainsi que ceux de votre client." },
         { title: "2. Numérotez et datez le document", body: "Attribuez un identifiant unique basé sur une séquence chronologique continue. Indiquez la date d'émission et l'échéance convenue." },

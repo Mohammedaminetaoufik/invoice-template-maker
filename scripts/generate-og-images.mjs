@@ -173,7 +173,7 @@ try {
     await page.setContent(document(locale), { waitUntil: "load" });
     await page.evaluate(() => document.fonts.ready);
     await page.screenshot({
-      path: resolve(outputDirectory, `invoice-maker-${locale}.jpg`),
+      path: resolve(outputDirectory, `invoice-maker-${locale}-v2.jpg`),
       type: "jpeg",
       quality: 89,
       fullPage: false,
@@ -184,4 +184,4 @@ try {
   await browser.close();
 }
 
-console.log("Generated public/og/invoice-maker-en.jpg and public/og/invoice-maker-fr.jpg (1200x630).");
+console.log("Generated versioned public/og/invoice-maker-en-v2.jpg and public/og/invoice-maker-fr-v2.jpg (1200x630).");

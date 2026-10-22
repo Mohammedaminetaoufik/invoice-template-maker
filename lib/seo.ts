@@ -7,7 +7,7 @@ import { routeMap } from "./routes";
 export const SITE_URL = "https://invoicetemplatemaker.com";
 
 const socialImage = (locale: Locale) => ({
-  url: `${SITE_URL}/og/invoice-maker-${locale}.jpg`,
+  url: `${SITE_URL}/og/invoice-maker-${locale}-v2.jpg`,
   width: 1200,
   height: 630,
   alt: locale === "fr"

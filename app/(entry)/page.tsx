@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     alternateLocale: "fr_FR",
     images: [{
-      url: `${SITE_URL}/og/invoice-maker-en.jpg`,
+      url: `${SITE_URL}/og/invoice-maker-en-v2.jpg`,
       width: 1200,
       height: 630,
       alt: "InvoiceTemplateMaker — Professional invoices made simple",
@@ -30,7 +30,9 @@ export const metadata: Metadata = {
     title: "Free Invoice Generator | InvoiceTemplateMaker",
     description: "Create professional invoices online for free. Customize a template and download a polished PDF—no signup or watermark.",
     images: [{
-      url: `${SITE_URL}/og/invoice-maker-en.jpg`,
+      url: `${SITE_URL}/og/invoice-maker-en-v2.jpg`,
+      width: 1200,
+      height: 630,
       alt: "InvoiceTemplateMaker — Professional invoices made simple",
     }],
   },

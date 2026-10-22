@@ -6,6 +6,7 @@ import type { Locale } from "@/lib/i18n";
 import { currencyCodes, type CurrencyCode } from "@/lib/invoice";
 import { generateReminder, parseReminderAmount, saveReminderPrefill, takeReminderPrefill, type ReminderDetails, type ReminderTone } from "@/lib/reminder";
 import { routeMap } from "@/lib/routes";
+import { trackEvent } from "@/lib/analytics";
 
 type CopyTarget = "full" | "subject" | "body";
 
@@ -49,6 +50,7 @@ export function PaymentReminderGenerator({ locale }: { locale: Locale }) {
   const [amount, setAmount] = useState("");
   const [feedback, setFeedback] = useState<"copied" | "error" | "">("");
   const feedbackTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const generatedTracked = useRef(false);
   const parsedAmount = parseReminderAmount(amount);
 
   useEffect(() => {
@@ -63,11 +65,18 @@ export function PaymentReminderGenerator({ locale }: { locale: Locale }) {
   const message = useMemo(() => parsedAmount === undefined ? undefined : generateReminder({ ...details, outstandingBalance: parsedAmount }, locale), [details, locale, parsedAmount]);
   const statusLabel = message?.dueStatus === "paid" ? c.paid : message?.dueStatus === "future" ? c.statusFuture : message?.dueStatus === "today" ? c.statusToday : message?.dueStatus === "overdue" ? c.statusOverdue : c.statusUnknown;
 
+  useEffect(() => {
+    if (!message?.canSend || generatedTracked.current) return;
+    generatedTracked.current = true;
+    trackEvent("payment_reminder_generated", { locale, tone: details.tone, due_status: message.dueStatus });
+  }, [details.tone, locale, message]);
+
   function update<K extends keyof ReminderDetails>(key: K, value: ReminderDetails[K]) { setDetails((current) => ({ ...current, [key]: value })); setFeedback(""); }
   async function handleCopy(target: CopyTarget) {
     if (!message?.canSend) return;
     try {
       await writeClipboard(target === "full" ? message.full : target === "subject" ? message.subject : message.body);
+      trackEvent("payment_reminder_copy", { locale, copy_target: target, tone: details.tone });
       setFeedback("copied");
     } catch { setFeedback("error"); }
     if (feedbackTimer.current) clearTimeout(feedbackTimer.current);

@@ -49,6 +49,26 @@ function routeMapPath(locale, target) {
   return `/${locale}/`;
 }
 
+function verifyJsonLd(html, file) {
+  const scripts = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
+  if (scripts.length !== 1) { console.error(`${file}: expected one JSON-LD block, found ${scripts.length}`); failures++; return; }
+  try {
+    const value = JSON.parse(decodeMetadata(scripts[0][1]));
+    if (value?.["@context"] !== "https://schema.org") throw new Error("missing schema.org context");
+  } catch (error) { console.error(`${file}: invalid JSON-LD (${error instanceof Error ? error.message : "parse error"})`); failures++; }
+}
+
+function verifyInternalLinks(html, file) {
+  for (const match of html.matchAll(/href="(\/[^"#]*)/g)) {
+    const href = decodeMetadata(match[1]);
+    const pathname = href.split(/[?#]/)[0];
+    if (!pathname || pathname.startsWith("//")) continue;
+    const relative = decodeURIComponent(pathname.slice(1));
+    const target = pathname.endsWith("/") || pathname === "/" ? resolve("out", relative, "index.html") : resolve("out", relative);
+    if (!existsSync(target)) { console.error(`${file}: broken internal link ${href}`); failures++; }
+  }
+}
+
 const pairs = [
   ["", ""],
   ["invoice-templates", "modeles-factures"],
@@ -88,12 +108,12 @@ for (const locale of ["en", "fr"]) {
     ["<h1", "static primary heading"],
     ["name=\"description\"", "meta description"],
     [`property=\"og:locale\" content=\"${locale === "fr" ? "fr_FR" : "en_US"}\"`, "localized Open Graph locale"],
-    [`property=\"og:image\" content=\"https://invoicetemplatemaker.com/og/invoice-maker-${locale}.jpg\"`, "localized Open Graph image"],
+    [`property=\"og:image\" content=\"https://invoicetemplatemaker.com/og/invoice-maker-${locale}-v2.jpg\"`, "localized Open Graph image"],
     ["property=\"og:image:width\" content=\"1200\"", "Open Graph image width"],
     ["property=\"og:image:height\" content=\"630\"", "Open Graph image height"],
     ["property=\"og:image:alt\"", "Open Graph image alt text"],
     ["name=\"twitter:card\" content=\"summary_large_image\"", "large Twitter card"],
-    [`name=\"twitter:image\" content=\"https://invoicetemplatemaker.com/og/invoice-maker-${locale}.jpg\"`, "localized Twitter image"],
+    [`name=\"twitter:image\" content=\"https://invoicetemplatemaker.com/og/invoice-maker-${locale}-v2.jpg\"`, "localized Twitter image"],
     ["name=\"twitter:image:alt\"", "Twitter image alt text"],
     ["src=\"/icon.svg\"", "shared brand mark"],
     ["rel=\"icon\"", "browser icon"],
@@ -104,6 +124,10 @@ for (const locale of ["en", "fr"]) {
     if (!html.includes(needle)) { console.error(`${file}: missing ${label}`); failures++; }
   }
   verifyUniqueSocialTags(html, file);
+  verifyJsonLd(html, file);
+  verifyInternalLinks(html, file);
+  const h1Count = (html.match(/<h1(?:\s|>)/g) ?? []).length;
+  if (h1Count !== 1) { console.error(`${file}: expected exactly one H1, found ${h1Count}`); failures++; }
   const title = html.match(/<title>(.*?)<\/title>/)?.[1];
   if (!title || titles.has(title)) { console.error(`${file}: missing or duplicate title`); failures++; }
   if (title) titles.add(title);
@@ -129,17 +153,32 @@ for (const locale of ["en", "fr"]) {
       if (!html.includes(needle)) { console.error(`${file}: article missing ${needle}`); failures++; }
     }
   }
+  if (englishSlug === "how-to-make-an-invoice") {
+    for (const needle of ["quick-answer", "annotated-example", "invoice-annotations", "template=freelance", routeMapPath(locale, "reminder")]) {
+      if (!html.includes(needle)) { console.error(`${file}: invoice guide missing ${needle}`); failures++; }
+    }
+  }
+  if (englishSlug === "simple-invoice-template") {
+    for (const needle of ["template-feature-preview", "template=minimal", "compact-seo-content", routeMapPath(locale, "reminder")]) {
+      if (!html.includes(needle)) { console.error(`${file}: simple template page missing ${needle}`); failures++; }
+    }
+  }
+  if (englishSlug === "invoice-with-logo") {
+    for (const needle of ["logo-feature-preview", "template=modern", "/icon.svg", "compact-seo-content"]) {
+      if (!html.includes(needle)) { console.error(`${file}: logo invoice page missing ${needle}`); failures++; }
+    }
+  }
 }
 }
 
 if (sitemapXml.includes("<lastmod>")) { console.error("Sitemap must not fabricate modification dates"); failures++; }
 
-for (const path of ["out/index.html", "out/icon.svg", "out/apple-icon.png", "out/manifest.webmanifest", "out/sw.js", "out/_headers", "out/sitemap.xml", "out/robots.txt", "out/fonts/NotoSans-Regular.woff", "out/fonts/NotoSans-Semibold.woff", "out/og/invoice-maker-en.jpg", "out/og/invoice-maker-fr.jpg"]) {
+for (const path of ["out/index.html", "out/icon.svg", "out/apple-icon.png", "out/manifest.webmanifest", "out/sw.js", "out/_headers", "out/sitemap.xml", "out/robots.txt", "out/fonts/NotoSans-Regular.woff", "out/fonts/NotoSans-Semibold.woff", "out/og/invoice-maker-en-v2.jpg", "out/og/invoice-maker-fr-v2.jpg"]) {
   if (!existsSync(resolve(path))) { console.error(`Missing export artifact: ${path}`); failures++; }
 }
 
 for (const locale of ["en", "fr"]) {
-  const file = resolve(`out/og/invoice-maker-${locale}.jpg`);
+  const file = resolve(`out/og/invoice-maker-${locale}-v2.jpg`);
   if (!existsSync(file)) continue;
   const dimensions = jpegDimensions(file);
   if (dimensions?.width !== 1200 || dimensions?.height !== 630) { console.error(`${file}: expected a 1200x630 JPEG`); failures++; }
@@ -156,8 +195,9 @@ const rootChecks = [
   ["hrefLang=\"x-default\"", "root x-default hreflang"],
   ["property=\"og:locale\" content=\"en_US\"", "root Open Graph locale"],
   ["property=\"og:locale:alternate\" content=\"fr_FR\"", "root alternate Open Graph locale"],
-  ["property=\"og:image\" content=\"https://invoicetemplatemaker.com/og/invoice-maker-en.jpg\"", "root Open Graph image"],
+  ["property=\"og:image\" content=\"https://invoicetemplatemaker.com/og/invoice-maker-en-v2.jpg\"", "root Open Graph image"],
   ["name=\"twitter:card\" content=\"summary_large_image\"", "root large Twitter card"],
+  ["name=\"twitter:image\" content=\"https://invoicetemplatemaker.com/og/invoice-maker-en-v2.jpg\"", "root Twitter image"],
   ["src=\"/icon.svg\"", "root brand mark"],
   ["rel=\"icon\"", "root browser icon"],
   ["rel=\"manifest\"", "root installable app manifest"],
@@ -167,6 +207,9 @@ for (const [needle, label] of rootChecks) {
   if (!rootHtml.includes(needle)) { console.error(`out/index.html: missing ${label}`); failures++; }
 }
 verifyUniqueSocialTags(rootHtml, "out/index.html");
+verifyJsonLd(rootHtml, "out/index.html");
+verifyInternalLinks(rootHtml, "out/index.html");
+if ((rootHtml.match(/<h1(?:\s|>)/g) ?? []).length !== 1) { console.error("out/index.html: expected exactly one H1"); failures++; }
 verifyHomeMetadataLengths(rootHtml, "out/index.html");
 if (rootHtml.includes("Choose Your Language") || rootHtml.includes("entry-choices")) {
   console.error("out/index.html: obsolete language-selection screen is still present");
@@ -176,6 +219,7 @@ if (rootHtml.includes("Choose Your Language") || rootHtml.includes("entry-choice
 for (const localizedFile of [resolve("out/en/index.html"), resolve("out/fr/index.html")]) {
   const html = readFileSync(localizedFile, "utf8");
   verifyHomeMetadataLengths(html, localizedFile);
+  verifyInternalLinks(html, localizedFile);
   if (html.includes("itm-root-locale-redirect")) {
     console.error(`${localizedFile}: root redirect must not run on an explicit localized URL`);
     failures++;
@@ -185,6 +229,7 @@ for (const localizedFile of [resolve("out/en/index.html"), resolve("out/fr/index
   }
   if (!html.includes("Use this template") && !html.includes("Utiliser ce modèle")) { console.error(`${localizedFile}: template entry must be static HTML`); failures++; }
 }
+if (!readFileSync(resolve("out/fr/index.html"), "utf8").includes("french-home-growth")) { console.error("out/fr/index.html: missing French three-step supporting content"); failures++; }
 
 if (existsSync(resolve("out/manifest.webmanifest"))) {
   const manifest = JSON.parse(readFileSync(resolve("out/manifest.webmanifest"), "utf8"));

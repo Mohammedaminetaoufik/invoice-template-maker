@@ -4,7 +4,13 @@ import { PwaRegister } from "@/components/PwaRegister";
 import { ROOT_LOCALE_REDIRECT_SCRIPT } from "@/lib/locale-resolution";
 import { AnalyticsConsent } from "@/components/AnalyticsConsent";
 
-export const metadata: Metadata = { appleWebApp: { capable: true, title: "InvoiceTemplateMaker", statusBarStyle: "default" } };
+export const metadata: Metadata = {
+  appleWebApp: { capable: true, title: "InvoiceTemplateMaker", statusBarStyle: "default" },
+  icons: {
+    icon: [{ url: "/icons/icon-192.png", type: "image/png", sizes: "192x192" }],
+    apple: [{ url: "/apple-icon.png", type: "image/png", sizes: "180x180" }],
+  },
+};
 export const viewport: Viewport = { themeColor: "#184c49" };
 
 export default function EntryLayout({ children }: Readonly<{ children: React.ReactNode }>) {

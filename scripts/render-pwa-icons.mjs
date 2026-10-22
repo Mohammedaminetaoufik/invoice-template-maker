@@ -1,8 +1,8 @@
-// Run manually after changing app/icon.svg. The generated PNGs are committed assets.
+// Run manually after changing public/icon.svg. The generated PNGs are committed assets.
 import { readFile } from "node:fs/promises";
 import sharp from "sharp";
 
-const mark = await readFile("app/icon.svg");
+const mark = await readFile("public/icon.svg");
 const maskable = await readFile("public/icons/maskable-source.svg");
 
 await Promise.all([

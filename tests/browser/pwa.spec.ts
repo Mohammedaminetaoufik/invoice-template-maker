@@ -8,6 +8,9 @@ test("install metadata and cached generator support an offline PDF", async ({ pa
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/en/");
   await expect(page.locator('link[rel="manifest"]')).toHaveAttribute("href", "/manifest.webmanifest");
+  await expect(page.locator('link[rel="icon"]')).toHaveAttribute("href", "/icons/icon-192.png");
+  await expect(page.locator('link[rel="icon"]')).toHaveAttribute("type", "image/png");
+  await expect(page.locator('link[rel="icon"]')).toHaveAttribute("sizes", "192x192");
   await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveCount(1);
   const manifest = await (await page.request.get("/manifest.webmanifest")).json();
   expect(manifest).toMatchObject({ id: "/", start_url: "/", scope: "/", display: "standalone" });

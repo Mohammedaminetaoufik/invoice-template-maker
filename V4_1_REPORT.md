@@ -57,6 +57,7 @@ The static export, technical SEO assertions, PWA, invoice and reminder flows, de
 - The analytics consent banner could cover mobile field-dialog controls. The active invoice field now sits above the banner, and all mobile editor tests pass.
 - Tool outcomes were not measured. Six anonymous custom events now cover template choice, first customization, successful PDF initiation, valid reminder generation, successful copy, and invoice-to-reminder navigation.
 - Static verification did not require exactly one H1, parse JSON-LD, validate ordinary internal links, or assert priority-page content. It now does all four across 26 localized routes plus the root checks.
+- Google Search was offered only the SVG browser icon, while its documented favicon formats are raster/ICO formats. Metadata now exposes the existing branded 192×192 PNG at the stable `/icons/icon-192.png` URL; the SVG remains available at `/icon.svg` for the site UI.
 - Public social metadata was correct, but X could still show a stale placeholder. Both language cards include a visible create-invoice CTA and now use new `-v2.jpg` cache keys without changing the approved design.
 
 ### Performance findings

@@ -10,7 +10,7 @@ const [background, regularFont, semiboldFont, brandIcon] = await Promise.all([
   readFile(resolve(root, "scripts/assets/og-background.jpg")),
   readFile(resolve(root, "public/fonts/NotoSans-Regular.woff")),
   readFile(resolve(root, "public/fonts/NotoSans-Semibold.woff")),
-  readFile(resolve(root, "app/icon.svg"), "utf8"),
+  readFile(resolve(root, "public/icon.svg"), "utf8"),
 ]);
 
 const dataUrl = (mime, bytes) => `data:${mime};base64,${Buffer.from(bytes).toString("base64")}`;

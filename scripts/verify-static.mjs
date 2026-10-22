@@ -116,7 +116,7 @@ for (const locale of ["en", "fr"]) {
     [`name=\"twitter:image\" content=\"https://invoicetemplatemaker.com/og/invoice-maker-${locale}-v2.jpg\"`, "localized Twitter image"],
     ["name=\"twitter:image:alt\"", "Twitter image alt text"],
     ["src=\"/icon.svg\"", "shared brand mark"],
-    ["rel=\"icon\"", "browser icon"],
+    ["rel=\"icon\" href=\"/icons/icon-192.png\"", "stable Google-compatible PNG favicon"],
     ["rel=\"manifest\"", "installable app manifest"],
     ["rel=\"apple-touch-icon\"", "Apple home-screen icon"],
   ];
@@ -199,7 +199,7 @@ const rootChecks = [
   ["name=\"twitter:card\" content=\"summary_large_image\"", "root large Twitter card"],
   ["name=\"twitter:image\" content=\"https://invoicetemplatemaker.com/og/invoice-maker-en-v2.jpg\"", "root Twitter image"],
   ["src=\"/icon.svg\"", "root brand mark"],
-  ["rel=\"icon\"", "root browser icon"],
+  ["rel=\"icon\" href=\"/icons/icon-192.png\"", "root stable Google-compatible PNG favicon"],
   ["rel=\"manifest\"", "root installable app manifest"],
   ["rel=\"apple-touch-icon\"", "root Apple home-screen icon"],
 ];

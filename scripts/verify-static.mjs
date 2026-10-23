@@ -69,6 +69,37 @@ function verifyInternalLinks(html, file) {
   }
 }
 
+function htmlHead(html) {
+  return html.match(/<head>([\s\S]*?)<\/head>/)?.[1] ?? "";
+}
+
+function sitemapEntry(url) {
+  return sitemapXml.split("<url>").find((entry) => entry.includes(`<loc>${url}</loc>`)) ?? "";
+}
+
+function verifyLanguageGroup(html, file, key, englishUrl, frenchUrl) {
+  const head = htmlHead(html);
+  const canonical = file.includes(`${resolve("out", "en")}`) ? englishUrl : frenchUrl;
+  const expected = { en: englishUrl, fr: frenchUrl, ...(key === "home" ? { "x-default": "https://invoicetemplatemaker.com/" } : {}) };
+  const canonicalCount = head.split(`rel="canonical" href="${canonical}"`).length - 1;
+  if (canonicalCount !== 1) { console.error(`${file}: expected one canonical ${canonical}, found ${canonicalCount}`); failures++; }
+  for (const [language, url] of Object.entries(expected)) {
+    const count = head.split(`rel="alternate" hrefLang="${language}" href="${url}"`).length - 1;
+    if (count !== 1) { console.error(`${file}: expected one ${language} alternate ${url}, found ${count}`); failures++; }
+  }
+  const expectedLanguages = Object.keys(expected).sort().join(",");
+  const actualLanguages = [...head.matchAll(/rel="alternate" hrefLang="([^"]+)"/g)].map((match) => match[1]).sort().join(",");
+  if (actualLanguages !== expectedLanguages) { console.error(`${file}: hreflang set ${actualLanguages || "(empty)"}; expected ${expectedLanguages}`); failures++; }
+  const entry = sitemapEntry(canonical);
+  if (!entry) { console.error(`${file}: missing canonical sitemap entry`); failures++; return; }
+  for (const [language, url] of Object.entries(expected)) {
+    const needle = `hreflang="${language}" href="${url}"`;
+    if (!entry.includes(needle)) { console.error(`${file}: sitemap entry missing ${language} alternate ${url}`); failures++; }
+  }
+  const sitemapLanguages = [...entry.matchAll(/hreflang="([^"]+)"/g)].map((match) => match[1]).sort().join(",");
+  if (sitemapLanguages !== expectedLanguages) { console.error(`${file}: sitemap hreflang set ${sitemapLanguages || "(empty)"}; expected ${expectedLanguages}`); failures++; }
+}
+
 const pairs = [
   ["", ""],
   ["invoice-templates", "modeles-factures"],
@@ -85,10 +116,17 @@ const pairs = [
   ["contact", "contact"],
 ];
 
+const pageKeyByEnglishSlug = new Map([
+  ["", "home"], ["invoice-templates", "templates"], ["simple-invoice-template", "simple"], ["freelance-invoice", "freelance"],
+  ["invoice-with-logo", "logo"], ["how-to-make-an-invoice", "guide"], ["late-payment-reminder-generator", "reminder"], ["blog", "blog"],
+  ["blog/how-to-write-a-late-payment-reminder", "reminderArticle"], ["privacy", "privacy"], ["terms", "terms"], ["about", "about"], ["contact", "contact"],
+]);
+
 let failures = 0;
 const sitemapXml = readFileSync(resolve("out/sitemap.xml"), "utf8");
 const titles = new Set();
 for (const [englishSlug, frenchSlug] of pairs) {
+const key = pageKeyByEnglishSlug.get(englishSlug);
 for (const locale of ["en", "fr"]) {
   const slug = locale === "en" ? englishSlug : frenchSlug;
   const frenchPath = `fr/${frenchSlug ? frenchSlug + "/" : ""}`;
@@ -98,12 +136,6 @@ for (const locale of ["en", "fr"]) {
   const html = readFileSync(file, "utf8");
   const checks = [
     [`lang=\"${locale}\"`, `correct ${locale} html language`],
-    [`rel=\"canonical\" href=\"https://invoicetemplatemaker.com/${locale}/${slug ? slug + "/" : ""}\"`, "correct canonical link"],
-    ["hrefLang=\"en\"", "English hreflang"],
-    ["hrefLang=\"fr\"", "French hreflang"],
-    ["hrefLang=\"x-default\"", "x-default hreflang"],
-    [frenchPath, "French alternate URL"],
-    [englishPath, "English alternate URL"],
     ["application/ld+json", "structured data"],
     ["<h1", "static primary heading"],
     ["name=\"description\"", "meta description"],
@@ -123,6 +155,7 @@ for (const locale of ["en", "fr"]) {
   for (const [needle, label] of checks) {
     if (!html.includes(needle)) { console.error(`${file}: missing ${label}`); failures++; }
   }
+  verifyLanguageGroup(html, file, key, `https://invoicetemplatemaker.com/${englishPath}`, `https://invoicetemplatemaker.com/${frenchPath}`);
   verifyUniqueSocialTags(html, file);
   verifyJsonLd(html, file);
   verifyInternalLinks(html, file);
@@ -132,8 +165,6 @@ for (const locale of ["en", "fr"]) {
   if (!title || titles.has(title)) { console.error(`${file}: missing or duplicate title`); failures++; }
   if (title) titles.add(title);
   if (/name="robots" content="[^"]*noindex/i.test(html)) { console.error(`${file}: localized canonical must be indexable`); failures++; }
-  const path = `https://invoicetemplatemaker.com/${locale}/${slug ? slug + "/" : ""}`;
-  if (!sitemapXml.includes(`<loc>${path}</loc>`)) { console.error(`${file}: missing canonical sitemap entry`); failures++; }
   for (const match of html.matchAll(/(?:src|href)="(\/_next\/[^"?]+)(?:\?[^" ]*)?"/g)) {
     const assetPath = resolve("out", decodeURIComponent(match[1].slice(1)));
     if (!existsSync(assetPath)) { console.error(`Missing referenced static asset: ${assetPath}`); failures++; }
@@ -189,10 +220,10 @@ const rootHtml = readFileSync(resolve("out/index.html"), "utf8");
 const rootChecks = [
   ["itm-root-locale-redirect", "root locale redirect script"],
   ["location.replace", "history-safe automatic redirect"],
+  ["lang=\"und\"", "language-neutral root HTML language"],
   ["/en/", "crawlable English fallback link"],
   ["/fr/", "crawlable French fallback link"],
-  ["rel=\"canonical\" href=\"https://invoicetemplatemaker.com/\"", "root canonical"],
-  ["hrefLang=\"x-default\"", "root x-default hreflang"],
+  ["root-fallback-actions", "language-neutral fallback choices"],
   ["property=\"og:locale\" content=\"en_US\"", "root Open Graph locale"],
   ["property=\"og:locale:alternate\" content=\"fr_FR\"", "root alternate Open Graph locale"],
   ["property=\"og:image\" content=\"https://invoicetemplatemaker.com/og/invoice-maker-en-v2.jpg\"", "root Open Graph image"],
@@ -206,13 +237,29 @@ const rootChecks = [
 for (const [needle, label] of rootChecks) {
   if (!rootHtml.includes(needle)) { console.error(`out/index.html: missing ${label}`); failures++; }
 }
+const rootHead = htmlHead(rootHtml);
+const rootAlternates = { en: "https://invoicetemplatemaker.com/en/", fr: "https://invoicetemplatemaker.com/fr/", "x-default": "https://invoicetemplatemaker.com/" };
+if (rootHead.split('rel="canonical" href="https://invoicetemplatemaker.com/"').length - 1 !== 1) {
+  console.error("out/index.html: expected exactly one self-referencing root canonical"); failures++;
+}
+for (const [language, url] of Object.entries(rootAlternates)) {
+  if (rootHead.split(`rel="alternate" hrefLang="${language}" href="${url}"`).length - 1 !== 1) {
+    console.error(`out/index.html: missing root ${language} alternate ${url}`); failures++;
+  }
+}
+const rootEntry = sitemapEntry("https://invoicetemplatemaker.com/");
+for (const [language, url] of Object.entries(rootAlternates)) {
+  if (!rootEntry.includes(`hreflang="${language}" href="${url}"`)) {
+    console.error(`sitemap root entry missing ${language} alternate ${url}`); failures++;
+  }
+}
 verifyUniqueSocialTags(rootHtml, "out/index.html");
 verifyJsonLd(rootHtml, "out/index.html");
 verifyInternalLinks(rootHtml, "out/index.html");
 if ((rootHtml.match(/<h1(?:\s|>)/g) ?? []).length !== 1) { console.error("out/index.html: expected exactly one H1"); failures++; }
 verifyHomeMetadataLengths(rootHtml, "out/index.html");
-if (rootHtml.includes("Choose Your Language") || rootHtml.includes("entry-choices")) {
-  console.error("out/index.html: obsolete language-selection screen is still present");
+if (rootHtml.includes("Create a professional invoice online.") || rootHtml.includes("Free Invoice Generator | InvoiceTemplateMaker")) {
+  console.error("out/index.html: root fallback still duplicates the English homepage");
   failures++;
 }
 

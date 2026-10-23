@@ -24,8 +24,8 @@ jobs:
       CI: "true"
       WRANGLER_SEND_METRICS: "false"
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: "24"
           cache: npm
@@ -37,5 +37,15 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Exercise invoice workflows in Chromium
         run: npm run test:browser
+      - name: Upload Playwright diagnostics
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v6
+        with:
+          name: playwright-diagnostics-${{ github.run_attempt }}
+          path: |
+            tmp/playwright/
+            tmp/playwright-report/
+          if-no-files-found: warn
+          retention-days: 14
       - name: Validate Cloudflare package without publishing
         run: npx --yes wrangler@4.150.0 deploy --dry-run --config wrangler.jsonc

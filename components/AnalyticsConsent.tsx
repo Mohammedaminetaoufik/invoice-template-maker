@@ -5,8 +5,8 @@ import Script from "next/script";
 import { hasStoredPrivacyPreferences, readPrivacyPreferences, writePrivacyPreferences, type PrivacyPreferences } from "@/lib/privacy-preferences";
 import type { Locale } from "@/lib/i18n";
 import { routeMap } from "@/lib/routes";
+import { GOOGLE_ANALYTICS_ID, setAnalyticsConsent } from "@/lib/analytics";
 
-const GOOGLE_ANALYTICS_ID = "G-PMW46NFNGD";
 export const OPEN_PRIVACY_PREFERENCES_EVENT = "itm:open-privacy-preferences";
 
 const copy = {
@@ -31,8 +31,12 @@ export function AnalyticsConsent({ locale }: { locale: Locale }) {
   const [panelOpen, setPanelOpen] = useState(false);
 
   useEffect(() => {
-    const stored = hasStoredPrivacyPreferences(window.localStorage);
-    setPreferences(readPrivacyPreferences(window.localStorage));
+    let storage: Storage | undefined;
+    try { storage = window.localStorage; } catch { /* Consent fails closed when storage is unavailable. */ }
+    const stored = storage ? hasStoredPrivacyPreferences(storage) : false;
+    const savedPreferences = storage ? readPrivacyPreferences(storage) : { version: 1, analytics: false, advertising: false } as const;
+    setPreferences(savedPreferences);
+    setAnalyticsConsent(savedPreferences.analytics);
     setPanelOpen(!stored);
     const open = () => setPanelOpen(true);
     window.addEventListener(OPEN_PRIVACY_PREFERENCES_EVENT, open);
@@ -41,10 +45,10 @@ export function AnalyticsConsent({ locale }: { locale: Locale }) {
 
   function choose(analytics: boolean) {
     const next: PrivacyPreferences = { version: 1, analytics, advertising: false };
-    writePrivacyPreferences(window.localStorage, next);
+    try { writePrivacyPreferences(window.localStorage, next); } catch { /* Keep the explicit choice for this page only. */ }
     setPreferences(next);
+    setAnalyticsConsent(analytics);
     setPanelOpen(false);
-    if (!analytics && window.gtag) window.gtag("consent", "update", { analytics_storage: "denied" });
   }
 
   const t = copy[locale];
@@ -54,6 +58,8 @@ export function AnalyticsConsent({ locale }: { locale: Locale }) {
       <Script id="google-analytics" strategy="afterInteractive">{`
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
+        window['ga-disable-${GOOGLE_ANALYTICS_ID}'] = false;
+        gtag('consent', 'default', { analytics_storage: 'granted', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
         gtag('js', new Date());
         gtag('config', '${GOOGLE_ANALYTICS_ID}');
       `}</Script>

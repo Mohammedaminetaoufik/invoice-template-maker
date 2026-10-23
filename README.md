@@ -48,7 +48,7 @@ Tests use PDF.js for actual PDF text extraction, fake IndexedDB for binary stora
 
 Browser QA runs against the static export with installed Chrome/Edge and a 390px Chrome touch viewport locally. GitHub Actions uses bundled Chromium on desktop and mobile. Run browser QA after the build and separately from the CPU-heavy unit/PDF suite. Representative screenshots are under `output/v3-1/`; generated QA captures are ignored by Git.
 
-The visual document, preview and PDF share `lib/pdf-layout.ts`; financial calculations use `lib/finance.ts`. See [the V4.1 SEO and growth handoff](V4_1_REPORT.md), [the SEO baseline](docs/v4.1-seo-baseline.md), [the analytics event guide](docs/analytics-and-growth.md), [calculation rules](docs/financial-calculations.md), [future advertising/privacy preparation](docs/advertising-and-privacy.md), [the V3 handoff](V3_REPORT.md), and [the V2 baseline](V2_REPORT.md).
+The visual document, preview and PDF share `lib/pdf-layout.ts`; financial calculations use `lib/finance.ts`. See [the V4.1.1 technical maintenance report](V4_1_1_REPORT.md), [the V4.1 SEO and growth handoff](V4_1_REPORT.md), [the SEO baseline](docs/v4.1-seo-baseline.md), [the analytics event guide](docs/analytics-and-growth.md), [calculation rules](docs/financial-calculations.md), [future advertising/privacy preparation](docs/advertising-and-privacy.md), [the V3 handoff](V3_REPORT.md), and [the V2 baseline](V2_REPORT.md).
 
 ## Static Cloudflare deployment
 

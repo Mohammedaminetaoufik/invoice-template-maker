@@ -6,6 +6,15 @@ import { routeMap } from "./routes";
 
 export const SITE_URL = "https://invoicetemplatemaker.com";
 
+export function languageAlternates(key: PageKey): Record<string, string> {
+  const languages: Record<string, string> = {
+    en: `${SITE_URL}${routeMap[key].en}`,
+    fr: `${SITE_URL}${routeMap[key].fr}`,
+  };
+  if (key === "home") languages["x-default"] = `${SITE_URL}/`;
+  return languages;
+}
+
 const socialImage = (locale: Locale) => ({
   url: `${SITE_URL}/og/invoice-maker-${locale}-v2.jpg`,
   width: 1200,
@@ -24,11 +33,7 @@ export function pageMetadata(locale: Locale, key: PageKey): Metadata {
     metadataBase: new URL(SITE_URL),
     alternates: {
       canonical,
-      languages: {
-        en: `${SITE_URL}${routeMap[key].en}`,
-        fr: `${SITE_URL}${routeMap[key].fr}`,
-        "x-default": `${SITE_URL}/`,
-      },
+      languages: languageAlternates(key),
     },
     openGraph: {
       title: content.title,

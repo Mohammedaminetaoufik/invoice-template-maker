@@ -17,7 +17,9 @@ test("English reminder adapts dates and exposes deliberate copy and email action
   await page.getByLabel("Due date").fill("2099-01-01");
   await expect(page.locator(".email-preview")).toContainText("is due on");
   await expect(page.locator(".email-preview")).not.toContainText("was due");
-  await page.getByLabel("Firm reminder").check();
+  const firmTone = page.locator("label.tone-card").filter({ hasText: "Firm reminder" });
+  await firmTone.click();
+  await expect(page.getByLabel("Firm reminder")).toBeChecked();
   const mail = page.getByRole("link", { name: "Open in email app" });
   await expect(mail).toHaveAttribute("href", /^mailto:\?subject=/);
   await page.getByRole("button", { name: "Copy full message" }).click();

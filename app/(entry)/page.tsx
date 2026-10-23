@@ -1,19 +1,18 @@
 import type { Metadata } from "next";
-import { ArrowRight } from "lucide-react";
 import { BrandMark } from "@/components/BrandMark";
 import { SITE_URL } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Free Invoice Generator | InvoiceTemplateMaker",
-  description: "Create professional invoices online for free. Customize a template and download a polished PDF—no signup or watermark.",
+  title: "InvoiceTemplateMaker — English or Français",
+  description: "Choose English or French to create a free professional invoice PDF with InvoiceTemplateMaker.",
   alternates: {
     canonical: `${SITE_URL}/`,
     languages: { en: `${SITE_URL}/en/`, fr: `${SITE_URL}/fr/`, "x-default": `${SITE_URL}/` },
   },
   openGraph: {
     type: "website",
-    title: "Free Invoice Generator | InvoiceTemplateMaker",
-    description: "Create professional invoices online for free. Customize a template and download a polished PDF—no signup or watermark.",
+    title: "InvoiceTemplateMaker — English or Français",
+    description: "Choose English or French to create a free professional invoice PDF with InvoiceTemplateMaker.",
     url: `${SITE_URL}/`,
     siteName: "InvoiceTemplateMaker",
     locale: "en_US",
@@ -27,8 +26,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Free Invoice Generator | InvoiceTemplateMaker",
-    description: "Create professional invoices online for free. Customize a template and download a polished PDF—no signup or watermark.",
+    title: "InvoiceTemplateMaker — English or Français",
+    description: "Choose English or French to create a free professional invoice PDF with InvoiceTemplateMaker.",
     images: [{
       url: `${SITE_URL}/og/invoice-maker-en-v2.jpg`,
       width: 1200,
@@ -56,11 +55,14 @@ export default function RootFallback() {
           <BrandMark />
           <span>InvoiceTemplateMaker</span>
         </a>
-        <span className="eyebrow">Free invoice generator</span>
-        <h1>Create a professional invoice online.</h1>
-        <p>Build, preview, and download a polished invoice PDF without creating an account. Your invoice information stays in your browser.</p>
-        <a className="button" href="/en/">Open the invoice generator <ArrowRight size={18} /></a>
-        <p className="root-fallback-language">Vous préférez le français ? <a href="/fr/" lang="fr">Ouvrir le générateur de factures</a>.</p>
+        <span className="eyebrow">English · Français</span>
+        <h1>InvoiceTemplateMaker</h1>
+        <p>Choose your language to continue. Choisissez votre langue pour continuer.</p>
+        <div className="root-fallback-actions">
+          <a className="button" href="/en/" hrefLang="en" lang="en">Continue in English</a>
+          <a className="button button-ghost" href="/fr/" hrefLang="fr" lang="fr">Continuer en français</a>
+        </div>
+        <p className="root-fallback-language">Free invoice generator · Générateur de facture gratuit</p>
       </section>
     </main>
   );

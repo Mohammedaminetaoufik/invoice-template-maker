@@ -19,26 +19,71 @@ const regularFontUrl = dataUrl("font/woff", regularFont);
 const semiboldFontUrl = dataUrl("font/woff", semiboldFont);
 const iconUrl = dataUrl("image/svg+xml", Buffer.from(brandIcon));
 
-const locales = {
+const localeDefaults = {
   en: {
-    eyebrow: "Free invoice generator",
-    headline: "Professional Invoices.<br>Made Simple.",
-    supporting: "Create <span>•</span> Customize <span>•</span> Download",
-    benefits: ["100% Free", "No Signup", "PDF Download"],
-    cta: "Create your free invoice →",
+    benefits: ["100% Free", "No Signup", "Private in Browser"],
+    cta: "Open the free tool →",
     builtBy: "Built by",
-    imageAlt: "InvoiceTemplateMaker — Professional invoices made simple",
   },
   fr: {
-    eyebrow: "Générateur de facture gratuit",
-    headline: "Des factures professionnelles,<br>en toute simplicité.",
-    supporting: "Créez <span>•</span> Personnalisez <span>•</span> Téléchargez",
-    benefits: ["100 % gratuit", "Sans inscription", "PDF à télécharger"],
-    cta: "Créer une facture gratuite →",
+    benefits: ["100 % gratuit", "Sans inscription", "Privé dans le navigateur"],
+    cta: "Ouvrir l'outil gratuit →",
     builtBy: "Créé par",
-    imageAlt: "InvoiceTemplateMaker — Des factures professionnelles, en toute simplicité",
   },
 };
+
+const pageCopy = {
+  en: {
+    home: ["Free invoice generator", "Professional Invoices.<br>Made Simple.", "Create <span>•</span> Customize <span>•</span> Download"],
+    templates: ["Eight professional designs", "Free Invoice<br>Templates", "Choose a design and customize it in your browser"],
+    simple: ["Clean and easy to edit", "Simple Invoice<br>Template", "Add your details and download a polished PDF"],
+    freelance: ["Built for independent work", "Freelance Invoice<br>Generator", "Invoice projects, hours, retainers, and services"],
+    logo: ["Professional business branding", "Create an Invoice<br>With Your Logo", "Add your logo locally and export a branded PDF"],
+    guide: ["Step-by-step invoice guide", "How to Make<br>an Invoice", "See a complete example, then create your own"],
+    reminder: ["Friendly, professional, or firm", "Late Payment<br>Reminder Generator", "Create a clear payment reminder in seconds"],
+    blog: ["Practical small-business resources", "Invoice Guides &<br>Payment Tips", "Clear examples backed by free browser tools"],
+    reminderArticle: ["Examples for every stage", "How to Write a<br>Payment Reminder", "Know what to say before and after the due date"],
+    privacy: ["Your invoice data stays local", "Privacy at<br>InvoiceTemplateMaker", "Understand storage, PDFs, and optional analytics"],
+    terms: ["Clear rules for using the service", "InvoiceTemplateMaker<br>Terms of Use", "Review responsibilities and important limitations"],
+    about: ["Free bilingual invoice tools", "About<br>InvoiceTemplateMaker", "Learn why the product is simple, private, and useful"],
+    contact: ["Report an issue or share an idea", "Contact &<br>Feedback", "Help improve InvoiceTemplateMaker for everyone"],
+  },
+  fr: {
+    home: ["Générateur de facture gratuit", "Des factures professionnelles,<br>en toute simplicité.", "Créez <span>•</span> Personnalisez <span>•</span> Téléchargez"],
+    templates: ["Huit designs professionnels", "Modèles de facture<br>gratuits", "Choisissez un design et personnalisez-le en ligne"],
+    simple: ["Clair et facile à modifier", "Modèle de facture<br>simple", "Ajoutez vos informations et téléchargez le PDF"],
+    freelance: ["Conçu pour les indépendants", "Générateur de facture<br>freelance", "Facturez projets, heures, forfaits et prestations"],
+    logo: ["Votre image professionnelle", "Créez une facture<br>avec votre logo", "Ajoutez votre logo localement et exportez le PDF"],
+    guide: ["Guide de facturation étape par étape", "Comment faire<br>une facture", "Consultez un exemple complet et créez la vôtre"],
+    reminder: ["Ton cordial, professionnel ou ferme", "Générateur de relance<br>de facture", "Créez un message de relance clair en quelques secondes"],
+    blog: ["Ressources pratiques pour entreprises", "Guides de facturation &<br>conseils de paiement", "Des exemples clairs et des outils gratuits"],
+    reminderArticle: ["Des exemples pour chaque étape", "Comment relancer une<br>facture impayée", "Trouvez les bons mots avant et après l'échéance"],
+    privacy: ["Vos données de facture restent locales", "Confidentialité chez<br>InvoiceTemplateMaker", "Comprenez le stockage, les PDF et les statistiques"],
+    terms: ["Des règles d'utilisation claires", "Conditions d'utilisation<br>InvoiceTemplateMaker", "Consultez vos responsabilités et les limites"],
+    about: ["Outils de facturation bilingues gratuits", "À propos de<br>InvoiceTemplateMaker", "Un produit simple, privé et utile au quotidien"],
+    contact: ["Signalez un problème ou partagez une idée", "Contact &<br>suggestions", "Aidez-nous à améliorer InvoiceTemplateMaker"],
+  },
+};
+
+const variants = [
+  {
+    locale: "root",
+    key: "root",
+    copy: {
+      eyebrow: "English · Français",
+      headline: "Free Invoice Tools<br>in English & French",
+      supporting: "Choose your language <span>·</span> Choisissez votre langue",
+      benefits: ["Free", "Bilingual", "Private in Browser"],
+      cta: "Create an invoice · Créer une facture →",
+      builtBy: "Built by · Créé par",
+    },
+  },
+  ...Object.entries(pageCopy).flatMap(([locale, pages]) => Object.entries(pages).map(([key, [eyebrow, headline, supporting]]) => ({
+    locale,
+    key,
+    copy: { ...localeDefaults[locale], eyebrow, headline, supporting },
+  }))),
+];
 
 function invoiceCard(kind, className, badge) {
   const rows = [72, 46, 61];
@@ -64,14 +109,16 @@ function invoiceCard(kind, className, badge) {
     </article>`;
 }
 
-function document(locale) {
-  const copy = locales[locale];
+function document(locale, copy) {
+  const imageAlt = `${copy.headline.replace(/<br>/g, " ")} — InvoiceTemplateMaker`;
+  const headlineLength = copy.headline.replace(/<[^>]+>/g, "").length;
+  const headlineSize = headlineLength > 46 ? 38 : headlineLength > 34 ? 42 : 49;
   return `<!doctype html>
-<html lang="${locale}">
+<html lang="${locale === "root" ? "und" : locale}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${copy.imageAlt}</title>
+  <title>${imageAlt}</title>
   <style>
     @font-face { font-family: "Noto Sans"; src: url("${regularFontUrl}") format("woff"); font-weight: 400; }
     @font-face { font-family: "Noto Sans"; src: url("${semiboldFontUrl}") format("woff"); font-weight: 600 800; }
@@ -85,8 +132,8 @@ function document(locale) {
     .brand img { width: 42px; height: 42px; filter: drop-shadow(0 7px 14px rgba(24,76,73,.16)); }
     .eyebrow { display: inline-flex; align-items: center; gap: 8px; margin-top: 45px; color: #a43b17; font-size: 12px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
     .eyebrow::before { content: ""; width: 25px; height: 3px; border-radius: 3px; background: #b84722; }
-    h1 { width: ${locale === "fr" ? "570px" : "510px"}; margin: 13px 0 17px; color: #102f2d; font: 700 ${locale === "fr" ? "42px/1.08" : "49px/1.04"} Georgia, serif; letter-spacing: -.035em; }
-    .supporting { margin: 0; color: #4f5d59; font-size: ${locale === "fr" ? "17px" : "18px"}; font-weight: 600; letter-spacing: .005em; }
+    h1 { width: 570px; margin: 13px 0 17px; color: #102f2d; font: 700 ${headlineSize}px/1.06 Georgia, serif; letter-spacing: -.035em; }
+    .supporting { width: 535px; margin: 0; color: #4f5d59; font-size: 17px; font-weight: 600; letter-spacing: .005em; }
     .supporting span { padding: 0 7px; color: #b84722; }
     .benefits { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 27px; }
     .benefit { display: flex; align-items: center; gap: 7px; min-height: 31px; padding: 0 11px; border: 1px solid rgba(24,76,73,.16); border-radius: 999px; color: #184c49; background: rgba(255,255,255,.74); font-size: 11.5px; font-weight: 700; box-shadow: 0 6px 18px rgba(25,40,37,.045); }
@@ -144,7 +191,7 @@ function document(locale) {
   </style>
 </head>
 <body>
-  <main class="canvas" role="img" aria-label="${copy.imageAlt}">
+  <main class="canvas" role="img" aria-label="${imageAlt}">
     <section class="copy">
       <div class="brand"><img src="${iconUrl}" alt=""><span>InvoiceTemplateMaker</span></div>
       <div class="eyebrow">${copy.eyebrow}</div>
@@ -168,12 +215,12 @@ function document(locale) {
 await mkdir(outputDirectory, { recursive: true });
 const browser = await chromium.launch({ headless: true });
 try {
-  for (const locale of Object.keys(locales)) {
+  for (const { locale, key, copy } of variants) {
     const page = await browser.newPage({ viewport: { width: 1200, height: 630 }, deviceScaleFactor: 1 });
-    await page.setContent(document(locale), { waitUntil: "load" });
+    await page.setContent(document(locale, copy), { waitUntil: "load" });
     await page.evaluate(() => document.fonts.ready);
     await page.screenshot({
-      path: resolve(outputDirectory, `invoice-maker-${locale}-v2.jpg`),
+      path: resolve(outputDirectory, `invoice-maker-${key}${locale === "root" ? "" : `-${locale}`}-v3.jpg`),
       type: "jpeg",
       quality: 89,
       fullPage: false,
@@ -184,4 +231,4 @@ try {
   await browser.close();
 }
 
-console.log("Generated versioned public/og/invoice-maker-en-v2.jpg and public/og/invoice-maker-fr-v2.jpg (1200x630).");
+console.log(`Generated ${variants.length} versioned page-specific Open Graph images in public/og (1200x630).`);

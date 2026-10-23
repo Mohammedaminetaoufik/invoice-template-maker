@@ -18,10 +18,11 @@ export const metadata: Metadata = {
     locale: "en_US",
     alternateLocale: "fr_FR",
     images: [{
-      url: `${SITE_URL}/og/invoice-maker-en-v2.jpg`,
+      url: `${SITE_URL}/og/invoice-maker-root-v3.jpg`,
       width: 1200,
       height: 630,
-      alt: "InvoiceTemplateMaker — Professional invoices made simple",
+      type: "image/jpeg",
+      alt: "InvoiceTemplateMaker — Free invoice tools in English and French",
     }],
   },
   twitter: {
@@ -29,10 +30,11 @@ export const metadata: Metadata = {
     title: "InvoiceTemplateMaker — English or Français",
     description: "Choose English or French to create a free professional invoice PDF with InvoiceTemplateMaker.",
     images: [{
-      url: `${SITE_URL}/og/invoice-maker-en-v2.jpg`,
+      url: `${SITE_URL}/og/invoice-maker-root-v3.jpg`,
       width: 1200,
       height: 630,
-      alt: "InvoiceTemplateMaker — Professional invoices made simple",
+      type: "image/jpeg",
+      alt: "InvoiceTemplateMaker — Free invoice tools in English and French",
     }],
   },
   robots: { index: true, follow: true },

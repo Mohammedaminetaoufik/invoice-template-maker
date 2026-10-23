@@ -44,6 +44,8 @@ npm run test:browser
 
 This generates the framework-managed route types, then runs TypeScript, financial/PDF/storage/interaction/translation tests, the production export, service-worker generation and static SEO/PWA asset verification.
 
+Every public route has a page-specific 1200×630 Open Graph/Twitter card under `public/og/`. After changing social-card copy or styling, regenerate the committed assets with `npm run generate:og`; the static verifier rejects missing, duplicated, oversized, or incorrectly sized cards.
+
 Tests use PDF.js for actual PDF text extraction, fake IndexedDB for binary storage, and jsdom/Testing Library for React interactions. PDF.js tests need Node 22.13 or newer; the verified environment used Node 24.16.
 
 Browser QA runs against the static export with installed Chrome/Edge and a 390px Chrome touch viewport locally. GitHub Actions uses bundled Chromium on desktop and mobile. Run browser QA after the build and separately from the CPU-heavy unit/PDF suite. Representative screenshots are under `output/v3-1/`; generated QA captures are ignored by Git.

@@ -125,6 +125,7 @@ const pageKeyByEnglishSlug = new Map([
 let failures = 0;
 const sitemapXml = readFileSync(resolve("out/sitemap.xml"), "utf8");
 const titles = new Set();
+const socialImages = new Set();
 for (const [englishSlug, frenchSlug] of pairs) {
 const key = pageKeyByEnglishSlug.get(englishSlug);
 for (const locale of ["en", "fr"]) {
@@ -134,18 +135,21 @@ for (const locale of ["en", "fr"]) {
   const file = resolve("out", locale, slug, "index.html");
   if (!existsSync(file)) { console.error(`Missing static route: ${file}`); failures++; continue; }
   const html = readFileSync(file, "utf8");
+  const socialImageName = `invoice-maker-${key}-${locale}-v3.jpg`;
+  const socialImageUrl = `https://invoicetemplatemaker.com/og/${socialImageName}`;
   const checks = [
     [`lang=\"${locale}\"`, `correct ${locale} html language`],
     ["application/ld+json", "structured data"],
     ["<h1", "static primary heading"],
     ["name=\"description\"", "meta description"],
     [`property=\"og:locale\" content=\"${locale === "fr" ? "fr_FR" : "en_US"}\"`, "localized Open Graph locale"],
-    [`property=\"og:image\" content=\"https://invoicetemplatemaker.com/og/invoice-maker-${locale}-v2.jpg\"`, "localized Open Graph image"],
+    [`property=\"og:image\" content=\"${socialImageUrl}\"`, "page-specific Open Graph image"],
     ["property=\"og:image:width\" content=\"1200\"", "Open Graph image width"],
     ["property=\"og:image:height\" content=\"630\"", "Open Graph image height"],
+    ["property=\"og:image:type\" content=\"image/jpeg\"", "Open Graph image MIME type"],
     ["property=\"og:image:alt\"", "Open Graph image alt text"],
     ["name=\"twitter:card\" content=\"summary_large_image\"", "large Twitter card"],
-    [`name=\"twitter:image\" content=\"https://invoicetemplatemaker.com/og/invoice-maker-${locale}-v2.jpg\"`, "localized Twitter image"],
+    [`name=\"twitter:image\" content=\"${socialImageUrl}\"`, "page-specific Twitter image"],
     ["name=\"twitter:image:alt\"", "Twitter image alt text"],
     ["src=\"/icon.svg\"", "shared brand mark"],
     ["rel=\"icon\" href=\"/icons/icon-192.png\"", "stable Google-compatible PNG favicon"],
@@ -154,6 +158,15 @@ for (const locale of ["en", "fr"]) {
   ];
   for (const [needle, label] of checks) {
     if (!html.includes(needle)) { console.error(`${file}: missing ${label}`); failures++; }
+  }
+  if (socialImages.has(socialImageUrl)) { console.error(`${file}: reuses social image ${socialImageUrl}`); failures++; }
+  socialImages.add(socialImageUrl);
+  const socialImageFile = resolve("out", "og", socialImageName);
+  if (!existsSync(socialImageFile)) { console.error(`${file}: missing social image asset ${socialImageFile}`); failures++; }
+  else {
+    const dimensions = jpegDimensions(socialImageFile);
+    if (dimensions?.width !== 1200 || dimensions?.height !== 630) { console.error(`${socialImageFile}: expected a 1200x630 JPEG`); failures++; }
+    if (statSync(socialImageFile).size >= 500_000) { console.error(`${socialImageFile}: social image must be under 500 KB`); failures++; }
   }
   verifyLanguageGroup(html, file, key, `https://invoicetemplatemaker.com/${englishPath}`, `https://invoicetemplatemaker.com/${frenchPath}`);
   verifyUniqueSocialTags(html, file);
@@ -202,18 +215,15 @@ for (const locale of ["en", "fr"]) {
 }
 }
 
-if (sitemapXml.includes("<lastmod>")) { console.error("Sitemap must not fabricate modification dates"); failures++; }
-
-for (const path of ["out/index.html", "out/icon.svg", "out/apple-icon.png", "out/manifest.webmanifest", "out/sw.js", "out/_headers", "out/sitemap.xml", "out/robots.txt", "out/fonts/NotoSans-Regular.woff", "out/fonts/NotoSans-Semibold.woff", "out/og/invoice-maker-en-v2.jpg", "out/og/invoice-maker-fr-v2.jpg"]) {
-  if (!existsSync(resolve(path))) { console.error(`Missing export artifact: ${path}`); failures++; }
+if (socialImages.size !== pairs.length * 2) {
+  console.error(`Expected ${pairs.length * 2} unique localized social images, found ${socialImages.size}`);
+  failures++;
 }
 
-for (const locale of ["en", "fr"]) {
-  const file = resolve(`out/og/invoice-maker-${locale}-v2.jpg`);
-  if (!existsSync(file)) continue;
-  const dimensions = jpegDimensions(file);
-  if (dimensions?.width !== 1200 || dimensions?.height !== 630) { console.error(`${file}: expected a 1200x630 JPEG`); failures++; }
-  if (statSync(file).size >= 500_000) { console.error(`${file}: social image must be under 500 KB`); failures++; }
+if (sitemapXml.includes("<lastmod>")) { console.error("Sitemap must not fabricate modification dates"); failures++; }
+
+for (const path of ["out/index.html", "out/icon.svg", "out/apple-icon.png", "out/manifest.webmanifest", "out/sw.js", "out/_headers", "out/sitemap.xml", "out/robots.txt", "out/fonts/NotoSans-Regular.woff", "out/fonts/NotoSans-Semibold.woff", "out/og/invoice-maker-root-v3.jpg"]) {
+  if (!existsSync(resolve(path))) { console.error(`Missing export artifact: ${path}`); failures++; }
 }
 
 const rootHtml = readFileSync(resolve("out/index.html"), "utf8");
@@ -226,9 +236,10 @@ const rootChecks = [
   ["root-fallback-actions", "language-neutral fallback choices"],
   ["property=\"og:locale\" content=\"en_US\"", "root Open Graph locale"],
   ["property=\"og:locale:alternate\" content=\"fr_FR\"", "root alternate Open Graph locale"],
-  ["property=\"og:image\" content=\"https://invoicetemplatemaker.com/og/invoice-maker-en-v2.jpg\"", "root Open Graph image"],
+  ["property=\"og:image\" content=\"https://invoicetemplatemaker.com/og/invoice-maker-root-v3.jpg\"", "root Open Graph image"],
+  ["property=\"og:image:type\" content=\"image/jpeg\"", "root Open Graph image MIME type"],
   ["name=\"twitter:card\" content=\"summary_large_image\"", "root large Twitter card"],
-  ["name=\"twitter:image\" content=\"https://invoicetemplatemaker.com/og/invoice-maker-en-v2.jpg\"", "root Twitter image"],
+  ["name=\"twitter:image\" content=\"https://invoicetemplatemaker.com/og/invoice-maker-root-v3.jpg\"", "root Twitter image"],
   ["src=\"/icon.svg\"", "root brand mark"],
   ["rel=\"icon\" href=\"/icons/icon-192.png\"", "root stable Google-compatible PNG favicon"],
   ["rel=\"manifest\"", "root installable app manifest"],
@@ -236,6 +247,12 @@ const rootChecks = [
 ];
 for (const [needle, label] of rootChecks) {
   if (!rootHtml.includes(needle)) { console.error(`out/index.html: missing ${label}`); failures++; }
+}
+const rootSocialImage = resolve("out", "og", "invoice-maker-root-v3.jpg");
+if (existsSync(rootSocialImage)) {
+  const dimensions = jpegDimensions(rootSocialImage);
+  if (dimensions?.width !== 1200 || dimensions?.height !== 630) { console.error(`${rootSocialImage}: expected a 1200x630 JPEG`); failures++; }
+  if (statSync(rootSocialImage).size >= 500_000) { console.error(`${rootSocialImage}: social image must be under 500 KB`); failures++; }
 }
 const rootHead = htmlHead(rootHtml);
 const rootAlternates = { en: "https://invoicetemplatemaker.com/en/", fr: "https://invoicetemplatemaker.com/fr/", "x-default": "https://invoicetemplatemaker.com/" };

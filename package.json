@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build && node scripts/build-pwa.mjs",
+    "generate:og": "node scripts/generate-og-images.mjs",
     "postinstall": "node scripts/copy-font.mjs",
     "test": "vitest run",
     "test:static": "node scripts/verify-static.mjs",

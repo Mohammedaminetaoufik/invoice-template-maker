@@ -1,3 +1,12 @@
+/
+  Cloudflare-CDN-Cache-Control: public, max-age=86400, stale-while-revalidate=604800, stale-if-error=604800
+
+/en/*
+  Cloudflare-CDN-Cache-Control: public, max-age=86400, stale-while-revalidate=604800, stale-if-error=604800
+
+/fr/*
+  Cloudflare-CDN-Cache-Control: public, max-age=86400, stale-while-revalidate=604800, stale-if-error=604800
+
 /sw.js
   Cache-Control: no-cache, no-store, must-revalidate
   Content-Type: text/javascript; charset=utf-8

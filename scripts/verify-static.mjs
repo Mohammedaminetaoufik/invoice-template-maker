@@ -43,6 +43,19 @@ function verifyHomeMetadataLengths(html, file) {
   }
 }
 
+function verifyMetadataDescriptionMinimum(html, file) {
+  const minimum = 100;
+  const values = [
+    [html.match(/<meta name="description" content="([^"]*)"/)?.[1], "page description"],
+    [html.match(/<meta property="og:description" content="([^"]*)"/)?.[1], "Open Graph description"],
+  ];
+  for (const [raw, label] of values) {
+    if (!raw) { console.error(`${file}: missing ${label}`); failures++; continue; }
+    const length = decodeMetadata(raw).length;
+    if (length < minimum) { console.error(`${file}: ${label} is ${length} characters; expected at least ${minimum}`); failures++; }
+  }
+}
+
 function routeMapPath(locale, target) {
   if (target === "article") return locale === "fr" ? "/fr/blog/comment-relancer-une-facture-impayee/" : "/en/blog/how-to-write-a-late-payment-reminder/";
   if (target === "reminder") return locale === "fr" ? "/fr/generateur-relance-facture-impayee/" : "/en/late-payment-reminder-generator/";
@@ -170,6 +183,7 @@ for (const locale of ["en", "fr"]) {
   }
   verifyLanguageGroup(html, file, key, `https://invoicetemplatemaker.com/${englishPath}`, `https://invoicetemplatemaker.com/${frenchPath}`);
   verifyUniqueSocialTags(html, file);
+  verifyMetadataDescriptionMinimum(html, file);
   verifyJsonLd(html, file);
   verifyInternalLinks(html, file);
   const h1Count = (html.match(/<h1(?:\s|>)/g) ?? []).length;
@@ -226,11 +240,25 @@ for (const path of ["out/index.html", "out/icon.svg", "out/apple-icon.png", "out
   if (!existsSync(resolve(path))) { console.error(`Missing export artifact: ${path}`); failures++; }
 }
 
+const headersFile = readFileSync(resolve("out/_headers"), "utf8").replaceAll("\r\n", "\n");
+const edgeHtmlCachePolicy = "Cloudflare-CDN-Cache-Control: public, max-age=86400, stale-while-revalidate=604800, stale-if-error=604800";
+for (const routePattern of ["/", "/en/*", "/fr/*"]) {
+  if (!headersFile.includes(`${routePattern}\n  ${edgeHtmlCachePolicy}`)) {
+    console.error(`out/_headers: missing edge HTML cache policy for ${routePattern}`);
+    failures++;
+  }
+}
+if (!headersFile.includes("/sw.js\n  Cache-Control: no-cache, no-store, must-revalidate")) {
+  console.error("out/_headers: service worker must remain uncached");
+  failures++;
+}
+
 const rootHtml = readFileSync(resolve("out/index.html"), "utf8");
 const rootChecks = [
   ["itm-root-locale-redirect", "root locale redirect script"],
   ["location.replace", "history-safe automatic redirect"],
-  ["lang=\"und\"", "language-neutral root HTML language"],
+  ["lang=\"en\"", "valid root HTML language"],
+  ["lang=\"fr\"", "French fallback language annotation"],
   ["/en/", "crawlable English fallback link"],
   ["/fr/", "crawlable French fallback link"],
   ["root-fallback-actions", "language-neutral fallback choices"],
@@ -271,6 +299,7 @@ for (const [language, url] of Object.entries(rootAlternates)) {
   }
 }
 verifyUniqueSocialTags(rootHtml, "out/index.html");
+verifyMetadataDescriptionMinimum(rootHtml, "out/index.html");
 verifyJsonLd(rootHtml, "out/index.html");
 verifyInternalLinks(rootHtml, "out/index.html");
 if ((rootHtml.match(/<h1(?:\s|>)/g) ?? []).length !== 1) { console.error("out/index.html: expected exactly one H1"); failures++; }

@@ -124,7 +124,7 @@ export const pageContent: Record<Locale, Record<PageKey, PageContent>> = {
     },
     privacy: {
       title: "Privacy Policy | InvoiceTemplateMaker",
-      description: "Learn how InvoiceTemplateMaker handles invoice drafts and website data.",
+      description: "Learn how InvoiceTemplateMaker keeps invoice drafts and logos in your browser and uses optional, consent-based analytics.",
       eyebrow: "Privacy",
       h1: "Your invoice draft stays in your browser",
       intro: "We designed this tool to minimize data collection. The invoice information you enter is stored locally on your device.",
@@ -136,7 +136,7 @@ export const pageContent: Record<Locale, Record<PageKey, PageContent>> = {
     },
     terms: {
       title: "Terms of Use | InvoiceTemplateMaker",
-      description: "Read the terms that apply when using the InvoiceTemplateMaker website and invoice generator.",
+      description: "Read the terms for using InvoiceTemplateMaker, including your responsibilities, service limitations, and invoice accuracy.",
       eyebrow: "Terms of use",
       h1: "Clear tools, sensible terms",
       intro: "You may use the generator to create invoices for lawful personal or business purposes.",

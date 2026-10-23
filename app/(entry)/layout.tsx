@@ -15,7 +15,7 @@ export const viewport: Viewport = { themeColor: "#184c49" };
 
 export default function EntryLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="und">
+    <html lang="en">
       <head>
         <script id="itm-root-locale-redirect" dangerouslySetInnerHTML={{ __html: ROOT_LOCALE_REDIRECT_SCRIPT }} />
       </head>

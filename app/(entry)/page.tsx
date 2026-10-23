@@ -4,7 +4,7 @@ import { SITE_URL } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "InvoiceTemplateMaker — English or Français",
-  description: "Choose English or French to create a free professional invoice PDF with InvoiceTemplateMaker.",
+  description: "Choose English or French to create, customize, and download a professional invoice PDF for free with InvoiceTemplateMaker.",
   alternates: {
     canonical: `${SITE_URL}/`,
     languages: { en: `${SITE_URL}/en/`, fr: `${SITE_URL}/fr/`, "x-default": `${SITE_URL}/` },
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     title: "InvoiceTemplateMaker — English or Français",
-    description: "Choose English or French to create a free professional invoice PDF with InvoiceTemplateMaker.",
+    description: "Choose English or French to create, customize, and download a professional invoice PDF for free with InvoiceTemplateMaker.",
     url: `${SITE_URL}/`,
     siteName: "InvoiceTemplateMaker",
     locale: "en_US",
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "InvoiceTemplateMaker — English or Français",
-    description: "Choose English or French to create a free professional invoice PDF with InvoiceTemplateMaker.",
+    description: "Choose English or French to create, customize, and download a professional invoice PDF for free with InvoiceTemplateMaker.",
     images: [{
       url: `${SITE_URL}/og/invoice-maker-root-v3.jpg`,
       width: 1200,
@@ -57,14 +57,14 @@ export default function RootFallback() {
           <BrandMark />
           <span>InvoiceTemplateMaker</span>
         </a>
-        <span className="eyebrow">English · Français</span>
+        <span className="eyebrow"><span lang="en">English</span> · <span lang="fr">Français</span></span>
         <h1>InvoiceTemplateMaker</h1>
-        <p>Choose your language to continue. Choisissez votre langue pour continuer.</p>
+        <p>Choose your language to continue. <span lang="fr">Choisissez votre langue pour continuer.</span></p>
         <div className="root-fallback-actions">
           <a className="button" href="/en/" hrefLang="en" lang="en">Continue in English</a>
           <a className="button button-ghost" href="/fr/" hrefLang="fr" lang="fr">Continuer en français</a>
         </div>
-        <p className="root-fallback-language">Free invoice generator · Générateur de facture gratuit</p>
+        <p className="root-fallback-language">Free invoice generator · <span lang="fr">Générateur de facture gratuit</span></p>
       </section>
     </main>
   );

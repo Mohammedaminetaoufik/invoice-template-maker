@@ -62,8 +62,8 @@ export const pageContent: Record<Locale, Record<PageKey, PageContent>> = {
       title: "Free Invoice Generator & Templates | InvoiceTemplateMaker",
       description: "Create professional invoices online for free. Customize a template and download a polished PDF—no signup or watermark.",
       eyebrow: "Free invoice generator",
-      h1: "Professional invoices, ready in minutes.",
-      intro: "Create a polished invoice PDF in your browser without an account.",
+      h1: "Free Invoice Generator — Private & No Sign-Up Required",
+      intro: "Create professional invoices in minutes. Customize a template and download a watermark-free PDF. Your invoice details stay in your browser.",
       sections: [],
     },
     templates: {
@@ -101,10 +101,10 @@ export const pageContent: Record<Locale, Record<PageKey, PageContent>> = {
     },
     logo: {
       title: "Invoice Template with Logo | Free Online Tool",
-      description: "Create a custom invoice with your business branding. Add your details, pick a layout, and export a clean PDF.",
-      eyebrow: "Custom invoice",
-      h1: "An invoice that reflects your brand",
-      intro: "Keep your branding consistent across quotes, invoices, and payment receipts.",
+      description: "Add your logo, customize a professional invoice, and download a watermark-free PDF. No signup; details stay in your browser.",
+      eyebrow: "Free invoice with logo",
+      h1: "Free Invoice Template with Logo — Customize & Download PDF",
+      intro: "Add your business logo, customize a professional invoice, and download a watermark-free PDF. No signup required, and your details stay in your browser.",
       sections: [
         { title: "Consistency builds recognition", body: "Use the same business name, contact details, number format, and payment language across invoices. It helps clients recognize your documents and your process." },
       ],
@@ -197,8 +197,8 @@ export const pageContent: Record<Locale, Record<PageKey, PageContent>> = {
       title: "Générateur de facture gratuit | InvoiceTemplateMaker",
       description: "Créez une facture professionnelle gratuitement. Personnalisez un modèle et téléchargez le PDF, sans inscription.",
       eyebrow: "Générateur de facture gratuit",
-      h1: "Des factures professionnelles, prêtes en quelques minutes.",
-      intro: "Créez une facture soignée dans votre navigateur, choisissez un modèle et téléchargez un PDF net sans compte.",
+      h1: "Générateur de facture gratuit, privé et sans inscription",
+      intro: "Créez une facture professionnelle en quelques minutes, personnalisez un modèle et téléchargez un PDF sans filigrane. Vos données de facture restent dans votre navigateur.",
       sections: [],
     },
     templates: {
@@ -216,8 +216,8 @@ export const pageContent: Record<Locale, Record<PageKey, PageContent>> = {
       title: "Modèle de Facture Simple – PDF Gratuit et Modifiable",
       description: "Personnalisez un modèle de facture simple gratuit et téléchargez un PDF professionnel, sans inscription ni filigrane.",
       eyebrow: "Modèle de facture simple",
-      h1: "Modèle de Facture Simple — À Personnaliser Gratuitement",
-      intro: "Découvrez un modèle épuré, personnalisez les informations essentielles et téléchargez un PDF professionnel sans compte ni filigrane.",
+      h1: "Modèle de facture simple gratuit — À remplir et télécharger",
+      intro: "Personnalisez cette facture simple gratuite en ligne, puis téléchargez un PDF professionnel sans inscription ni filigrane.",
       sections: [
         { title: "Ce qu'une facture simple doit comporter", body: "L'identité de votre entreprise, les coordonnées du client, un numéro unique, les dates d'émission et d'échéance, le détail des prestations et le montant total." },
         { title: "Des instructions de règlement explicites", body: "Renseignez vos coordonnées bancaires et vos délais de paiement. Des consignes claires facilitent le traitement comptable." },
@@ -236,10 +236,10 @@ export const pageContent: Record<Locale, Record<PageKey, PageContent>> = {
     },
     logo: {
       title: "Facture Avec Logo — Modèle Personnalisé Gratuit",
-      description: "Insérez le logo de votre entreprise et générez une facture PDF à vos couleurs. Traitement local dans le navigateur, haute définition et bilingue.",
-      eyebrow: "Facture personnalisée",
-      h1: "Une facture à l'image de votre entreprise",
-      intro: "Ajoutez vos informations, sélectionnez votre couleur d'accentuation et renforcez votre image de marque auprès de vos clients.",
+      description: "Ajoutez un logo, personnalisez la facture et téléchargez un PDF sans inscription. Vos données restent dans le navigateur.",
+      eyebrow: "Facture gratuite avec logo",
+      h1: "Créez une facture avec logo gratuitement",
+      intro: "Ajoutez votre logo, personnalisez votre facture et téléchargez un PDF professionnel sans inscription. Vos informations restent dans votre navigateur.",
       sections: [
         { title: "Une reconnaissance visuelle immédiate", body: "L'association de votre logo et d'une couleur soignée valorise vos documents commerciaux et inspire confiance." },
       ],

@@ -28,6 +28,17 @@ test("simple-template CTA selects minimal while preserving an existing draft", a
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("itm-invoice-draft-v1")!).draft)).toMatchObject({ template: "minimal", businessName: "Saved Studio", clientName: "Saved Client" });
 });
 
+test("French simple-template CTA selects minimal while preserving invoice details", async ({ page }) => {
+  const saved = { ...createDefaultDraft("fr"), wizardStep: 2 as const, template: "classic" as const, businessName: "Atelier sauvegardé", clientName: "Client sauvegardé", items: [{ id: "saved-fr", description: "Prestation sauvegardée", quantity: 1, rate: 240 }] };
+  await page.goto("/fr/modele-facture-simple/");
+  await page.evaluate((draft) => localStorage.setItem("itm-invoice-draft-v1", JSON.stringify({ version: 2, draft })), saved);
+  await page.reload();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Modèle de facture simple gratuit — À remplir et télécharger");
+  await page.getByRole("link", { name: "Utiliser ce modèle gratuit" }).click();
+  await expect(page).toHaveURL(/\/fr\/modele-facture-simple\/\?template=minimal#generator$/);
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("itm-invoice-draft-v1")!).draft)).toMatchObject({ template: "minimal", businessName: "Atelier sauvegardé", clientName: "Client sauvegardé" });
+});
+
 test("French homepage adds concise contextual paths without displacing the generator", async ({ page }) => {
   await page.goto("/fr/");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Générateur de facture gratuit");
@@ -40,15 +51,33 @@ test("French homepage adds concise contextual paths without displacing the gener
 
 test("French logo page uses the real renderer and explains local logo handling", async ({ page }) => {
   await page.goto("/fr/facture-avec-logo/");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Créez une facture avec logo gratuitement");
   await expect(page.locator(".logo-feature-preview .invoice-svg image")).toHaveAttribute("href", "/icon.svg");
   const guidance = page.locator(".compact-seo-content");
   await expect(guidance.getByText(/PNG, JPEG ou WebP/)).toBeVisible();
   await expect(guidance.getByText(/conservée sur votre appareil/)).toBeVisible();
-  await expect(page.getByRole("link", { name: "Créer ma facture avec logo" })).toHaveAttribute("href", "/fr/facture-avec-logo/?template=modern#generator");
+  await expect(guidance.locator(".growth-step-grid article")).toHaveCount(3);
+  const start = page.getByRole("link", { name: "Créer ma facture avec logo" });
+  await expect(start).toHaveAttribute("href", "/fr/facture-avec-logo/?template=modern#generator");
+  await start.click();
+  await expect(page.getByRole("button", { name: "Importer mon logo" })).toBeVisible();
+  await expect(page.locator(".advanced-panel")).toBeVisible();
+  await expect(page.locator(".logo-control input[type=file]")).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
+test("English logo page exposes the same direct logo workflow", async ({ page }) => {
+  await page.goto("/en/invoice-with-logo/");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Free Invoice Template with Logo — Customize & Download PDF");
+  await expect(page.getByText("Watermark-free PDF", { exact: true })).toBeVisible();
+  await page.getByRole("link", { name: "Create an Invoice with My Logo" }).click();
+  await expect(page.getByRole("button", { name: "Upload my logo" })).toBeVisible();
+  await expect(page.locator(".advanced-panel .logo-control input[type=file]")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Open the free invoice generator" })).toHaveAttribute("href", "/en/");
+});
+
 test("priority pages remain usable at 375px, 390px, tablet, and desktop widths", async ({ page }) => {
+  test.setTimeout(120000);
   for (const viewport of [{ width: 375, height: 780 }, { width: 390, height: 844 }, { width: 768, height: 1024 }, { width: 1440, height: 1000 }]) {
     await page.setViewportSize(viewport);
     await page.goto("/en/how-to-make-an-invoice/");
@@ -57,5 +86,10 @@ test("priority pages remain usable at 375px, 390px, tablet, and desktop widths",
     await page.goto("/fr/modele-facture-simple/");
     await expect(page.getByRole("link", { name: "Utiliser ce modèle gratuit" })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    for (const route of ["/en/invoice-with-logo/", "/fr/facture-avec-logo/"]) {
+      await page.goto(route);
+      await expect(page.locator(".logo-feature-preview")).toBeVisible();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    }
   }
 });

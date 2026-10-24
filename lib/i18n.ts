@@ -19,8 +19,8 @@ const en = {
   header: { create: "Create an invoice", menu: "Open menu", language: "Language" },
   hero: {
     eyebrow: "Free · Private · No sign-up",
-    title: "Professional invoices, ready in minutes.",
-    body: "Build a polished invoice in your browser, choose a design, and download a crisp PDF. Your draft stays on your device.",
+    title: "Free Invoice Generator — Private & No Sign-Up Required",
+    body: "Create professional invoices in minutes. Customize a template and download a watermark-free PDF. Your invoice details stay in your browser.",
     primary: "Create my invoice",
     secondary: "Browse templates",
     trust: "Trusted tools for independent work",
@@ -225,8 +225,8 @@ const fr: TranslationShape = {
   header: { create: "Créer une facture", menu: "Ouvrir le menu", language: "Langue" },
   hero: {
     eyebrow: "Gratuit · Confidentiel · Sans inscription",
-    title: "Des factures professionnelles, prêtes en quelques minutes.",
-    body: "Créez une facture soignée dans votre navigateur, choisissez un modèle et téléchargez un PDF net. Votre brouillon reste sur votre appareil.",
+    title: "Générateur de facture gratuit, privé et sans inscription",
+    body: "Créez une facture professionnelle en quelques minutes, personnalisez un modèle et téléchargez un PDF sans filigrane. Vos données de facture restent dans votre navigateur.",
     primary: "Créer ma facture",
     secondary: "Voir les modèles",
     trust: "Des outils pensés pour le travail indépendant",

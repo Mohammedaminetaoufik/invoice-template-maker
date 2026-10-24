@@ -31,6 +31,7 @@ export function TemplateGallery({ locale, full = false }: { locale: Locale; full
           ); })}
         </div>
         {full && <div className="content-callout"><Check size={20} /><p>{locale === "fr" ? "Le changement de modèle conserve les coordonnées, lignes, paramètres et préférences linguistiques de votre facture." : "Switching templates preserves your invoice contacts, line items, settings, and language preferences."}</p></div>}
+        {full && <nav className="inline-journey template-intent-links" aria-label={locale === "fr" ? "Modèles selon votre besoin" : "Templates by task"}><a href={routeMap.logo[locale]}>{locale === "fr" ? "Créer une facture avec logo" : "Customize an invoice with your logo"}</a><a href={routeMap.simple[locale]}>{locale === "fr" ? "Modèle de facture simple gratuit" : "Free simple invoice template"}</a></nav>}
       </div>
     </section>
   );

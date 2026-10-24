@@ -17,7 +17,7 @@ import { trackEvent } from "@/lib/analytics";
 
 type Status = "idle" | "working" | "done" | "error" | "validation" | "calculation" | "unsupported" | "saved" | "importError";
 
-export function InvoiceBuilder({ locale, initialTemplate, onResultChange }: { locale: Locale; initialTemplate?: TemplateId; onResultChange?: (completed: boolean) => void }) {
+export function InvoiceBuilder({ locale, initialTemplate, prioritizeLogo = false, onResultChange }: { locale: Locale; initialTemplate?: TemplateId; prioritizeLogo?: boolean; onResultChange?: (completed: boolean) => void }) {
   const t = getDictionary(locale);
   const [draft, setDraft] = useState<InvoiceDraft>(() => ({ ...createDefaultDraft(locale), template: initialTemplate ?? "modern" }));
   const [ready, setReady] = useState(false);
@@ -28,7 +28,7 @@ export function InvoiceBuilder({ locale, initialTemplate, onResultChange }: { lo
   const heading = useRef<HTMLHeadingElement>(null);
   const copy = getEditorCopy(locale);
   const [showTemplates, setShowTemplates] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
+  const [showSettings, setShowSettings] = useState(prioritizeLogo);
   const [guidance, setGuidance] = useState(true);
   const [activeField, setActiveField] = useState<{ field: string; itemId?: string }>();
   const [downloadInitiated, setDownloadInitiated] = useState(false);
@@ -190,6 +190,7 @@ export function InvoiceBuilder({ locale, initialTemplate, onResultChange }: { lo
       {step !== 1 && <>
         <div className="editor-toolbar">
           <button type="button" className="button button-ghost" disabled={logoBusy || status === "working"} onClick={() => setShowTemplates(!showTemplates)}>{copy.change}</button>
+          {prioritizeLogo && step === 2 && <button type="button" className="button button-ghost logo-shortcut" disabled={logoBusy || status === "working"} onClick={() => { setShowSettings(true); setActiveField({ field: "logo" }); }}>{locale === "fr" ? "Importer mon logo" : "Upload my logo"}</button>}
           {step === 2 && <button type="button" className="button button-ghost" onClick={() => setShowSettings(!showSettings)} aria-expanded={showSettings}>{copy.advanced}</button>}
           {step === 3 && <button type="button" className="button button-ghost" disabled={logoBusy || status === "working"} onClick={() => goToStep(2)}>{copy.edit}</button>}
           {step === 2 && <button type="button" className="button button-ghost" disabled={logoBusy || status === "working"} onClick={() => goToStep(3)}>{copy.review}</button>}

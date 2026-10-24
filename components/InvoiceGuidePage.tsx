@@ -23,7 +23,7 @@ const guide = {
     ],
     mistakesTitle: "Common invoice mistakes to avoid", mistakes: ["Reusing an invoice number", "Leaving the due date or currency unclear", "Using vague line-item descriptions", "Forgetting a deposit or partial payment", "Sending before checking the final PDF", "Assuming one country’s legal rules apply everywhere"],
     faqTitle: "Invoice questions", faqs: [["Can I make an invoice for free?", "Yes. InvoiceTemplateMaker lets you edit and download a PDF without signup, a subscription, or a watermark."], ["Do I need to be a registered company?", "Requirements depend on where and how you work. Freelancers and sole traders commonly invoice clients, but you should verify the rules that apply to your activity."], ["What payment deadline should I use?", "Use the deadline agreed with your client or required for your situation. Avoid inventing a universal deadline."], ["Can I edit the invoice after downloading?", "Yes. The browser keeps the working draft on your device, so you can correct it and generate a new PDF."]],
-    journey: [["Use the simple invoice template", "simple"], ["Create a free invoice", "home"], ["Create a late payment reminder", "reminder"]] as const,
+    journey: [["Use the simple invoice template", "simple"], ["Customize an invoice with your logo", "logo"], ["Create a free invoice", "home"], ["Create a late payment reminder", "reminder"]] as const,
   },
   fr: {
     answer: "Pour faire une facture, indiquez les coordonnées du vendeur et du client, attribuez un numéro unique, détaillez les prestations et les prix, calculez le total, fixez l’échéance, ajoutez les modalités de règlement, puis vérifiez et téléchargez le PDF.",
@@ -42,7 +42,7 @@ const guide = {
     ],
     mistakesTitle: "Erreurs de facturation à éviter", mistakes: ["Réutiliser un numéro de facture", "Oublier l’échéance ou la devise", "Décrire les prestations de façon trop vague", "Omettre un acompte ou paiement partiel", "Envoyer le document sans vérifier le PDF", "Appliquer les règles d’un pays à toutes les situations"],
     faqTitle: "Questions sur la création d’une facture", faqs: [["Puis-je créer une facture gratuitement ?", "Oui. InvoiceTemplateMaker permet de modifier et télécharger un PDF sans inscription, abonnement ni filigrane."], ["Faut-il avoir une société ?", "Les obligations dépendent du pays et de votre activité. Les indépendants facturent couramment leurs clients, mais vous devez vérifier les règles qui vous concernent."], ["Quelle échéance choisir ?", "Utilisez le délai convenu avec votre client ou requis dans votre situation. Il n’existe pas de délai universel valable partout."], ["Puis-je corriger la facture après le téléchargement ?", "Oui. Le brouillon reste dans votre navigateur et vous pouvez générer un nouveau PDF après correction."]],
-    journey: [["Utiliser un modèle de facture simple", "simple"], ["Créer une facture gratuite", "home"], ["Créer une relance de paiement", "reminder"]] as const,
+    journey: [["Utiliser un modèle de facture simple", "simple"], ["Créer une facture avec logo", "logo"], ["Créer une facture gratuite", "home"], ["Créer une relance de paiement", "reminder"]] as const,
   },
 } as const;
 

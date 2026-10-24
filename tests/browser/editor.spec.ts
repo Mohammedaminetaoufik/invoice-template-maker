@@ -21,7 +21,7 @@ async function screenshot(page: Page, name: string, project: string) {
 test("template-first editor, validation, rows, live amounts and correction after a real download", async ({ page }, info) => {
   const errors: string[] = []; page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/en/");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Free Invoice Generator — Create Professional Invoices Online");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Free Invoice Generator — Private & No Sign-Up Required");
   await screenshot(page, "homepage-en", info.project.name);
   await page.getByRole("button", { name: "Use this template: Modern Professional", exact: true }).click();
   await page.getByRole("button", { name: "Review invoice", exact: true }).click();
@@ -139,7 +139,7 @@ test("all eight templates preserve data; interface language, PDF language, logo 
     before = await draft(page);
   }
   await page.locator(".language-switcher").getByRole("link", { name: "FR", exact: true }).click();
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Générateur de facture gratuit — Créez votre facture en ligne");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Générateur de facture gratuit, privé et sans inscription");
   expect(await draft(page)).toEqual({ ...before, template: "retail" });
   await screenshot(page, "editing-fr", info.project.name);
   await page.reload();

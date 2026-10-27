@@ -1,6 +1,6 @@
 # Cloudflare version-upload and manual-promotion workflow
 
-This project is a Cloudflare **Worker with static assets**, not a Cloudflare Pages project. Its Worker name and asset output are defined in `wrangler.jsonc` as `invoice-template-maker` and `./out`.
+This project is a Cloudflare **Worker with static assets**, not a Cloudflare Pages project. The `worker.ts` entry point runs before assets to issue permanent 308 redirects from HTTP/www to HTTPS/apex and from `/` (or `/index.html`) to `/en/`, preserving query parameters. Explicit `/en/` and `/fr/` routes remain stable; preview URLs stay on their preview host. The asset binding serves all other requests, including their normal headers and 404 status. Worker-first routing means these requests invoke the Worker. Its Worker name and asset output are defined in `wrangler.jsonc` as `invoice-template-maker` and `./out`.
 
 ## Required one-time dashboard settings
 
@@ -59,3 +59,14 @@ The repository cannot verify the live Cloudflare account. Check these in order w
 8. **Caching:** after promotion, compare the active version ID first. If it is correct but a browser appears stale, use a private window and inspect service-worker/cache state; do not repeatedly deploy to guess at a cache issue.
 
 No remote connection, build history, Version URL, active deployment, custom-domain route, or build token was changed or verified during local implementation.
+
+## Canonical routing release checks
+
+Before promotion, verify the Version URL and the matching commit. After promotion:
+
+- `/` and `/index.html` redirect permanently to `/en/` with no language-dependent destination.
+- `http://invoicetemplatemaker.com/en/?template=corporate` redirects to its HTTPS equivalent, retaining `template=corporate`.
+- HTTPS `/en/`, `/fr/`, both invoice guides and template routes return their normal content and self-referencing canonicals.
+- The homepage EN/FR hreflang set uses `/en/` as x-default; sitemap lists localized canonical URLs and omits the redirected root.
+- Check both language-switch directions, template selection, PDF generation and offline reopening.
+- Inspect `/en/` in Search Console, run a live test, and request indexing only after the custom domain is serving this version. Canonical selection updates after Google reprocesses the URLs; a successful live test alone does not prove indexation.

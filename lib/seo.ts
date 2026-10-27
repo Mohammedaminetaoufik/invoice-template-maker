@@ -11,7 +11,7 @@ export function languageAlternates(key: PageKey): Record<string, string> {
     en: `${SITE_URL}${routeMap[key].en}`,
     fr: `${SITE_URL}${routeMap[key].fr}`,
   };
-  if (key === "home") languages["x-default"] = `${SITE_URL}/`;
+  if (key === "home") languages["x-default"] = `${SITE_URL}/en/`;
   return languages;
 }
 

@@ -13,7 +13,7 @@ Open `http://localhost:3000`. Stop the development server before a Windows clean
 
 ## Functionality
 
-- Automatic language routing at `/`, with manual EN/FR preference priority
+- Permanent server redirect from `/` to `/en/`, with an EN/FR language switcher
 - Template-first visual editor with contextual document fields and optional advanced settings
 - Eight distinct shared invoice templates and real template previews
 - English/French document language independent of the interface

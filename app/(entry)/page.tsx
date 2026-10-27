@@ -6,14 +6,14 @@ export const metadata: Metadata = {
   title: "InvoiceTemplateMaker — English or Français",
   description: "Choose English or French to create, customize, and download a professional invoice PDF for free with InvoiceTemplateMaker.",
   alternates: {
-    canonical: `${SITE_URL}/`,
-    languages: { en: `${SITE_URL}/en/`, fr: `${SITE_URL}/fr/`, "x-default": `${SITE_URL}/` },
+    canonical: `${SITE_URL}/en/`,
+    languages: { en: `${SITE_URL}/en/`, fr: `${SITE_URL}/fr/`, "x-default": `${SITE_URL}/en/` },
   },
   openGraph: {
     type: "website",
     title: "InvoiceTemplateMaker — English or Français",
     description: "Choose English or French to create, customize, and download a professional invoice PDF for free with InvoiceTemplateMaker.",
-    url: `${SITE_URL}/`,
+    url: `${SITE_URL}/en/`,
     siteName: "InvoiceTemplateMaker",
     locale: "en_US",
     alternateLocale: "fr_FR",
@@ -45,7 +45,7 @@ export default function RootFallback() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: "InvoiceTemplateMaker",
-    url: `${SITE_URL}/`,
+    url: `${SITE_URL}/en/`,
     inLanguage: ["en", "fr"],
   };
 

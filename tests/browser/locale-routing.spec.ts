@@ -1,19 +1,19 @@
 import { expect, test } from "@playwright/test";
 
-test("the language-neutral root respects the browser language", async ({ page }) => {
+test("the root consistently resolves to the English canonical", async ({ page }) => {
   await page.addInitScript(() => {
     Object.defineProperty(navigator, "languages", { configurable: true, get: () => ["fr-FR", "en-US"] });
     Object.defineProperty(navigator, "language", { configurable: true, get: () => "fr-FR" });
   });
   await page.goto("/");
-  await expect(page).toHaveURL("/fr/");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Générateur de facture gratuit");
+  await expect(page).toHaveURL("/en/");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Free Invoice Generator");
 });
 
-test("a saved locale overrides the browser only at the root", async ({ page }) => {
+test("saved preferences do not override canonical root or explicit language routes", async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem("itm-preferred-language", "fr"));
   await page.goto("/");
-  await expect(page).toHaveURL("/fr/");
+  await expect(page).toHaveURL("/en/");
 
   await page.goto("/en/");
   await expect(page).toHaveURL("/en/");

@@ -93,7 +93,7 @@ function sitemapEntry(url) {
 function verifyLanguageGroup(html, file, key, englishUrl, frenchUrl) {
   const head = htmlHead(html);
   const canonical = file.includes(`${resolve("out", "en")}`) ? englishUrl : frenchUrl;
-  const expected = { en: englishUrl, fr: frenchUrl, ...(key === "home" ? { "x-default": "https://invoicetemplatemaker.com/" } : {}) };
+  const expected = { en: englishUrl, fr: frenchUrl, ...(key === "home" ? { "x-default": "https://invoicetemplatemaker.com/en/" } : {}) };
   const canonicalCount = head.split(`rel="canonical" href="${canonical}"`).length - 1;
   if (canonicalCount !== 1) { console.error(`${file}: expected one canonical ${canonical}, found ${canonicalCount}`); failures++; }
   for (const [language, url] of Object.entries(expected)) {
@@ -283,20 +283,17 @@ if (existsSync(rootSocialImage)) {
   if (statSync(rootSocialImage).size >= 500_000) { console.error(`${rootSocialImage}: social image must be under 500 KB`); failures++; }
 }
 const rootHead = htmlHead(rootHtml);
-const rootAlternates = { en: "https://invoicetemplatemaker.com/en/", fr: "https://invoicetemplatemaker.com/fr/", "x-default": "https://invoicetemplatemaker.com/" };
-if (rootHead.split('rel="canonical" href="https://invoicetemplatemaker.com/"').length - 1 !== 1) {
-  console.error("out/index.html: expected exactly one self-referencing root canonical"); failures++;
+const rootAlternates = { en: "https://invoicetemplatemaker.com/en/", fr: "https://invoicetemplatemaker.com/fr/", "x-default": "https://invoicetemplatemaker.com/en/" };
+if (rootHead.split('rel="canonical" href="https://invoicetemplatemaker.com/en/"').length - 1 !== 1) {
+  console.error("out/index.html: expected exactly one English canonical for the root fallback"); failures++;
 }
 for (const [language, url] of Object.entries(rootAlternates)) {
   if (rootHead.split(`rel="alternate" hrefLang="${language}" href="${url}"`).length - 1 !== 1) {
     console.error(`out/index.html: missing root ${language} alternate ${url}`); failures++;
   }
 }
-const rootEntry = sitemapEntry("https://invoicetemplatemaker.com/");
-for (const [language, url] of Object.entries(rootAlternates)) {
-  if (!rootEntry.includes(`hreflang="${language}" href="${url}"`)) {
-    console.error(`sitemap root entry missing ${language} alternate ${url}`); failures++;
-  }
+if (sitemapEntry("https://invoicetemplatemaker.com/")) {
+  console.error("sitemap must not list the redirected root URL"); failures++;
 }
 verifyUniqueSocialTags(rootHtml, "out/index.html");
 verifyMetadataDescriptionMinimum(rootHtml, "out/index.html");
